@@ -1,0 +1,5 @@
+.env
+node_modules/
+db.json
+apps.json
+*.Identifier

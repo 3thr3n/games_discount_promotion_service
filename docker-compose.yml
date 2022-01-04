@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  games_discount_promotions_service:
+    build: .
+    image: 3thr3n/games_discount_promotions_service:latest
+    volumes:
+      - ./db/:/usr/src/games_service/db/
+    environment:
+      - TIMEZONE=${TIMEZONE}
+      - TIMEZONE_LOCALE=${TIMEZONE_LOCALE}
+      - HOUR_12=${HOUR_12}
+      - LOCALE=${LOCALE}
+      - COUNTRY=${COUNTRY}
+      - CRON=${CRON}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHATID=${TELEGRAM_CHATID}

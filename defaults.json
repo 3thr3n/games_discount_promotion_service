@@ -1,0 +1,8 @@
+{
+  "cron":"2 * * 5",
+  "locale":"en",
+  "country":"US",
+  "timezone_locale": "en-US",
+  "timezone":"UTC",
+  "12Hour":false
+}
