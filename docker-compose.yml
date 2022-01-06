@@ -7,11 +7,19 @@ services:
     volumes:
       - ./db/:/usr/src/games_service/db/
     environment:
+      # Basic
       - TIMEZONE=${TIMEZONE}
       - TIMEZONE_LOCALE=${TIMEZONE_LOCALE}
       - HOUR_12=${HOUR_12}
       - LOCALE=${LOCALE}
       - COUNTRY=${COUNTRY}
       - CRON=${CRON}
+      # Telegram
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHATID=${TELEGRAM_CHATID}
+      # Steam
+      - STEAM_ENABLED=${STEAM_ENABLED}
+      - STEAM_GAME_PRICE=${STEAM_GAME_PRICE}
+      - STEAM_GAME_PERCENTAGE=${STEAM_GAME_PERCENTAGE}
+      # Epic
+      - EPIC_ENABLED=${EPIC_ENABLED}
