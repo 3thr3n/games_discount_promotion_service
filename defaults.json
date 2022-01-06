@@ -4,5 +4,7 @@
   "country":"US",
   "timezone_locale": "en-US",
   "timezone":"UTC",
-  "12Hour":false
+  "12Hour":false,
+  "steam_game_price":4999,
+  "steam_game_percent":50
 }
