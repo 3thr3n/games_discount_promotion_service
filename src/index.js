@@ -470,9 +470,7 @@ function sendTelegramMessage(dbData, changes) {
     console.error(error.code);
     console.error(error.response);
   });
-  
-}
-
+ 
 //#endregion
 
 // =====================================================================
