@@ -19,5 +19,9 @@
     "node-telegram-bot-api": "^0.56.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.6.0",
+    "eslint-config-google": "^0.14.0"
   }
 }
