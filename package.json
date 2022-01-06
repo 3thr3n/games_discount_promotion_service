@@ -7,7 +7,7 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint --output-file eslint_report.json --format json **/*.js"
+    "lint": "npx eslint --output-file eslint_report.json --format json src"
   },
   "type": "module",
   "author": "3thr3n",
