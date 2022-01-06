@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint --output-file eslint_report.json --format json src"
   },
   "type": "module",
   "author": "3thr3n",
@@ -19,5 +20,9 @@
     "node-telegram-bot-api": "^0.56.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.6.0",
+    "eslint-config-google": "^0.14.0"
   }
 }
