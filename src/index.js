@@ -113,7 +113,7 @@ async function init() {
 //#region SteamGames
 
 async function fetchSteamJson() {
-  console.log("Running fetchSteamJson")
+  console.debug("Running fetchSteamJson")
   const options = {
     hostname: steanAPIURL,
     port: 443,
@@ -146,7 +146,7 @@ async function fetchSteamJson() {
 const listAppIds = []
 
 function processSteamJson(gameData) {
-  console.log("- Running processSteamJson")
+  console.debug("- Running processSteamJson")
   let appidConcatArray = []
   let appidConcat = ''
 
@@ -181,7 +181,7 @@ function processSteamJson(gameData) {
 }
 
 async function fetchSteamCashJson(appids) {
-  console.log("-- Running fetchSteamCashJson")
+  console.debug("-- Running fetchSteamCashJson")
   const options = {
     hostname: steamStoreURL,
     port: 443,
@@ -214,14 +214,14 @@ async function fetchSteamCashJson(appids) {
 }
 
 function processSteamCashJson(cashData) {
-  console.log("--- Running processSteamCashJson")
+  console.debug("--- Running processSteamCashJson")
   let discounts = []
   Object.keys(cashData).forEach(function(k, v){
     let gameAppID = cashData[k]
     if (gameAppID.data !== undefined && gameAppID.data.price_overview !== undefined) {
       let gameAppIDCash = gameAppID.data.price_overview
       if (gameAppIDCash.initial >= globSteamGamePrice && gameAppIDCash.discount_percent >= globSteamGamePercent) {
-        discounts.push(gameAppID)
+        discounts.push(k)
       }
     }
   });
@@ -289,7 +289,7 @@ function processSteamGameJson(json) {
 //#region EpicGames
 
 async function fetchEpicJson() {
-  console.log("Running fetchEpicJson")
+  console.debug("Running fetchEpicJson")
   const options = {
     hostname: epicgamesURL,
     port: 443,
@@ -317,7 +317,7 @@ async function fetchEpicJson() {
 }
 
 function processEpicJson(gameData) {
-  console.log("- Running fetchEpicJson")
+  console.debug("- Running fetchEpicJson")
   for (let i = 0; i < gameData.length; i++) {
     const { title, id, status, isCodeRedemptionOnly, seller, price, keyImages } = gameData[i];
     const { originalPrice, discountPrice, discount, currencyCode, currencyInfo } = price.totalPrice
@@ -401,7 +401,7 @@ function sendTelegramMessage(dbData, changes) {
 //#region msg
 
 function sendMessage(dbData, changes) {
-  console.log(`
+  console.info(`
 ========================================================================
   Store: `+dbData.store+`
 
@@ -429,7 +429,7 @@ function sendMessage(dbData, changes) {
 //#region Database
 
 async function prepareWriteToDB(dbData) {
-  console.log("* Running prepareWriteToDB")
+  console.debug("* Running prepareWriteToDB")
   const postIndex = games.findIndex((p) => p.id === dbData.id)
   const post = games[postIndex]
 
@@ -453,24 +453,24 @@ async function prepareWriteToDB(dbData) {
 }
 
 async function writeToDB() {
-  console.log("* Running writeToDB")
+  console.debug("* Running writeToDB")
   db.write()
 }
 
 async function checkDB() {
-  console.log("* Running checkDB")
+  console.debug("* Running checkDB")
   await db.read()
   db.data ||= { games: [] }
 }
 
 async function deleteDB() {
-  console.log("* Running deleteDB")
+  console.debug("* Running deleteDB")
   let date = new Date()
   const toRemoveIDs = []
   games.forEach((element, i) => {
     let endDate = new Date(element.endDate)
     if (endDate < date && element.store === 'epic') {
-      console.log("Removed from DB: " + element.title + " -> " + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}))
+      console.info("Removed from DB: " + element.title + " -> " + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}))
       toRemoveIDs.push(i)
     }
   });
