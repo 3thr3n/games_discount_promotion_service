@@ -29,6 +29,18 @@ const globLocale = process.env.LOCALE || defaults.locale
 const globCountry = process.env.COUNTRY || defaults.country
 const globCron = "0 0 " + (process.env.CRON || defaults.cron)
 
+// EPIC
+const globEpic = process.env.EPIC_ENABLED || false
+const epicgamesURL = "store-site-backend-static-ipv4.ak.epicgames.com"
+
+// STEAM
+const globSteam = process.env.STEAM_ENABLED || false
+const globSteamGamePrice = process.env.STEAM_GAME_PRICE || defaults.steam_game_price
+const globSteamGamePercent = process.env.STEAM_GAME_PERCENTAGE ||defaults.steam_game_percent
+const steamStoreURL = "store.steampowered.com"
+const steanAPIURL = "api.steampowered.com"
+const steamApiTimeout = 1500
+
 // Telegram-BOT
 const token = process.env.TELEGRAM_BOT_TOKEN
 const chatID = process.env.TELEGRAM_CHATID
@@ -36,8 +48,6 @@ let bot
 if (token !== undefined && chatID !== undefined && token.length > 0 && chatID != 0) {
   bot = new TelegramBot(token, {polling: false});
 }
-
-const epicgamesURL = "store-site-backend-static-ipv4.ak.epicgames.com"
 
 // Initailize Database
 await checkDB()
@@ -50,9 +60,14 @@ app.get('/', function (req, res) {
 })
 
 // =====================================================================
-// -------------------------------CRONJOBS------------------------------
+// ------------------------------FUNCTIONS------------------------------
 // =====================================================================
 
+//#region init + cron
+
+// =====================================================================
+// -------------------------------CRONJOB-------------------------------
+// =====================================================================
 
 const botJob = new CronJob(globCron, () => {
   cronJob()
@@ -62,27 +77,219 @@ const deleteJob = new CronJob("0 0 0 * * *", () => {
   deleteDB()
 }, null, false)
 
+// Runs every x m/h/d
+async function cronJob() {
+  if (globSteam === 'true') {
+    fetchSteamJson()
+  }
+  if (globEpic === 'true') {
+    fetchEpicJson()
+  }
+}
 
 // =====================================================================
-// ------------------------------FUNCTIONS------------------------------
+// --------------------------------INIT---------------------------------
 // =====================================================================
 
 // Initial run on start
 async function init() {
-  fetchEpicJson()
-  deleteDB()
+  if (globSteam === 'true') {
+    await fetchSteamJson()
+  }
+  if (globEpic === 'true') {
+    await fetchEpicJson()
+  }
+  await deleteDB()
   botJob.start()
   deleteJob.start()
 }
 
-// Runs every x m/h/d
-async function cronJob() {
-  fetchEpicJson()
+//#endregion
+
+// =====================================================================
+// --------------------------------STEAM--------------------------------
+// =====================================================================
+
+//#region SteamGames
+
+async function fetchSteamJson() {
+  console.log("Running fetchSteamJson")
+  const options = {
+    hostname: steanAPIURL,
+    port: 443,
+    path: '/ISteamApps/GetAppList/v0002/?format=json',
+    method: 'GET'
+  }
+  const req = https.request(options, res => {
+    var body = ''
+    res.on('data', (d) => {
+      body += d
+    })
+
+    res.on('end', () => {
+      try { 
+        let steamGamesJson = JSON.parse(body);
+        processSteamJson(steamGamesJson.applist.apps)
+      } catch (error) {
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.error("Error: " + error)
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+      }
+    });
+  })
+  req.on('error', error => {
+    console.error(error)
+  })
+  req.end()
 }
+
+const listAppIds = []
+
+function processSteamJson(gameData) {
+  console.log("- Running processSteamJson")
+  let appidConcatArray = []
+  let appidConcat = ''
+
+  gameData.forEach((game, i) => {
+    var name = String(game.name)
+    if (name.length > 0 && !name.match('demo')) {
+      appidConcat += game.appid+","
+      if (i != 0 && i % 800 == 0) {
+        appidConcatArray.push(appidConcat)
+        appidConcat = ''
+      }
+    }
+  })
+
+  for (let i = 0; i < appidConcatArray.length; i++) {
+    const element = appidConcatArray[i];
+    setTimeout(async function() { 
+      await fetchSteamCashJson(element); 
+    }, steamApiTimeout * i);
+  }
+
+  setTimeout(async function() {
+    listAppIds.forEach((i, n) => {
+      setTimeout(async function() { 
+        await fetchSteamIndivdualJson(i)
+      }, steamApiTimeout * n)
+    })
+    setTimeout(() => {
+      writeToDB()
+    }, steamApiTimeout * listAppIds.length)
+  }, steamApiTimeout * (appidConcatArray.length))
+}
+
+async function fetchSteamCashJson(appids) {
+  console.log("-- Running fetchSteamCashJson")
+  const options = {
+    hostname: steamStoreURL,
+    port: 443,
+    path: '/api/appdetails?cc='+globLocale+'&l='+globLocale+'&filters=price_overview&appids='+appids,
+    method: 'GET'
+  }
+  const req = https.request(options, res => {
+    var body = ''
+    res.on('data', (d) => {
+      body += d
+    })
+
+    res.on('end', () => {
+      try { 
+        let steamStoreCashJson = JSON.parse(body);
+        processSteamCashJson(steamStoreCashJson).forEach(i => listAppIds.push(i))
+      } catch (error) {
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.error("Error: " + error)
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.info("--> Try again! ")
+        fetchSteamCashJson(appids)
+      }
+    });
+  })
+  req.on('error', error => {
+    console.error(error)
+  })
+  req.end()
+}
+
+function processSteamCashJson(cashData) {
+  console.log("--- Running processSteamCashJson")
+  let discounts = []
+  Object.keys(cashData).forEach(function(k, v){
+    let gameAppID = cashData[k]
+    if (gameAppID.data !== undefined && gameAppID.data.price_overview !== undefined) {
+      let gameAppIDCash = gameAppID.data.price_overview
+      if (gameAppIDCash.initial >= globSteamGamePrice && gameAppIDCash.discount_percent >= globSteamGamePercent) {
+        discounts.push(gameAppID)
+      }
+    }
+  });
+  return discounts
+}
+
+async function fetchSteamIndivdualJson(appid) {
+  const options = {
+    hostname: steamStoreURL,
+    port: 443,
+    path: '/api/appdetails?cc='+globLocale+'&l='+globLocale+'&appids='+appid,
+    method: 'GET'
+  }
+  const req = https.request(options, res => {
+    var body = ''
+    res.on('data', (d) => {
+      body += d
+    })
+
+    res.on('end', () => {
+      try { 
+        let steamStoreGameJson = JSON.parse(body)
+        let game = steamStoreGameJson[appid]
+        let gameSuccess = game.success
+        if (gameSuccess) {
+          processSteamGameJson(game.data)
+        }
+      } catch (error) {
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.error("Error: " + error)
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+      }
+    });
+  })
+  req.on('error', error => {
+    console.error(error)
+  })
+  req.end()
+}
+
+function processSteamGameJson(json) {
+  let dbData = {
+    "store":"steam",
+    "title":json.name,
+    "id":json.steam_appid,
+    "status":"",
+    "sellerName":json.publishers[0],
+    "originalPrice":json.price_overview.initial,
+    "discountPrice":json.price_overview.final,
+    "discountPercent":json.price_overview.discount_percent,
+    "discount":(json.price_overview.initial-json.price_overview.final),
+    "currencyCode":json.price_overview.currency,
+    "currencyDecimals":2,
+    "thumbnailURL":json.header_image,
+  }
+  prepareWriteToDB(dbData)
+}
+
+//#endregion
+
+// =====================================================================
+// --------------------------------EPIC---------------------------------
+// =====================================================================
 
 //#region EpicGames
 
-function fetchEpicJson() {
+async function fetchEpicJson() {
+  console.log("Running fetchEpicJson")
   const options = {
     hostname: epicgamesURL,
     port: 443,
@@ -101,7 +308,7 @@ function fetchEpicJson() {
       var epicgamesJson = JSON.parse(body);
       
       processEpicJson(epicgamesJson.data.Catalog.searchStore.elements);
-  });
+    });
   })
   req.on('error', error => {
     console.error(error)
@@ -110,6 +317,7 @@ function fetchEpicJson() {
 }
 
 function processEpicJson(gameData) {
+  console.log("- Running fetchEpicJson")
   for (let i = 0; i < gameData.length; i++) {
     const { title, id, status, isCodeRedemptionOnly, seller, price, keyImages } = gameData[i];
     const { originalPrice, discountPrice, discount, currencyCode, currencyInfo } = price.totalPrice
@@ -153,28 +361,8 @@ function processEpicJson(gameData) {
       "endDate":endDates.length > 1 ? endDates : endDates[0] 
     };
     prepareWriteToDB(dbData)
-    writeToDB()
   }
-}
-
-function sendMessage(dbData, changes) {
-  console.log(`
-========================================================================
-  Store: `+dbData.store+`
-
-  `+dbData.title+` from `+dbData.sellerName+`
-  `+(changes === "new" ? "NEW" : changes === "higher" ? "Update (Discount is now higher)" : "Update (Discount is now lower)")+` (`+dbData.status+`)
-  
-  Original price: `+dbData.originalPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-  Discount price: `+dbData.discountPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-  Discount: -`+dbData.discount/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-
-  Getting key: `+dbData.codeRedemptionOnly+`
-  Ends on : `+new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'})+`
-========================================================================
-  `)
-
-  sendTelegramMessage(dbData, changes)
+  writeToDB()
 }
 
 function sendTelegramMessage(dbData, changes) {
@@ -197,17 +385,51 @@ function sendTelegramMessage(dbData, changes) {
   `
 
   bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
-    console.log(error.code);
-    console.log(error.response);
+    console.error(error.code);
+    console.error(error.response);
   });
   
 }
 
 //#endregion
 
+
+// =====================================================================
+// ---------------------------------MSG---------------------------------
+// =====================================================================
+
+//#region msg
+
+function sendMessage(dbData, changes) {
+  console.log(`
+========================================================================
+  Store: `+dbData.store+`
+
+  `+dbData.title+` from `+dbData.sellerName+`
+  `+(changes === "new" ? "NEW" : changes === "higher" ? "Update (Discount is now higher)" : "Update (Discount is now lower)")+((dbData.status.length > 0) ? ` (`+dbData.status+`) ` : `` )+`
+  
+  Original price: `+dbData.originalPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
+  Discount price: `+dbData.discountPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
+  Discount: -`+dbData.discount/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
+` + ( dbData.store === 'epic' ? `
+  Getting key: `+dbData.codeRedemptionOnly+`
+  Ends on : `+new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}) + `
+` : `` ) + `========================================================================
+  `)
+
+  sendTelegramMessage(dbData, changes)
+}
+
+//#endregion
+
+// =====================================================================
+// ------------------------------DATABASE-------------------------------
+// =====================================================================
+
 //#region Database
 
 async function prepareWriteToDB(dbData) {
+  console.log("* Running prepareWriteToDB")
   const postIndex = games.findIndex((p) => p.id === dbData.id)
   const post = games[postIndex]
 
@@ -231,20 +453,24 @@ async function prepareWriteToDB(dbData) {
 }
 
 async function writeToDB() {
+  console.log("* Running writeToDB")
   db.write()
 }
 
 async function checkDB() {
+  console.log("* Running checkDB")
   await db.read()
   db.data ||= { games: [] }
 }
 
 async function deleteDB() {
+  console.log("* Running deleteDB")
   let date = new Date()
   const toRemoveIDs = []
   games.forEach((element, i) => {
     let endDate = new Date(element.endDate)
-    if (endDate < date) {
+    if (endDate < date && element.store === 'epic') {
+      console.log("Removed from DB: " + element.title + " -> " + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}))
       toRemoveIDs.push(i)
     }
   });
@@ -256,6 +482,9 @@ async function deleteDB() {
 
 //#endregion
 
+// =====================================================================
+// --------------------------------START--------------------------------
+// =====================================================================
 
 // Start
 init()
