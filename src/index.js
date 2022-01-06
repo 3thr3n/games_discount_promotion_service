@@ -280,6 +280,39 @@ function processSteamGameJson(json) {
   prepareWriteToDB(dbData)
 }
 
+async function fetchSteamIndividualCashJson(appid) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: steamStoreURL,
+      port: 443,
+      path: '/api/appdetails?cc='+globLocale+'&l='+globLocale+'&filters=price_overview&appids='+appid,
+      method: 'GET'
+    }
+    const req = https.request(options, res => {
+      var body = ''
+      res.on('data', (d) => {
+        body += d
+      })
+
+      res.on('end', () => {
+        try { 
+          let steamStoreIndividualCashJson = JSON.parse(body);
+          resolve(steamStoreIndividualCashJson)
+        } catch (error) {
+          console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+          console.error("Error: " + error)
+          console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+          reject(error)
+        }
+      });
+    })
+    req.on('error', error => {
+      reject(error)
+    })
+    req.end()
+  })
+}
+
 //#endregion
 
 // =====================================================================
@@ -365,32 +398,6 @@ function processEpicJson(gameData) {
   writeToDB()
 }
 
-function sendTelegramMessage(dbData, changes) {
-  if (bot === undefined) {
-    return;
-  }
-
-  const message = `
-  *Store: `+dbData.store+`*
-
-  *`+dbData.title+` from `+dbData.sellerName+`*
-`+(changes === "new" ? "_NEW_" : changes === "higher" ? "_Update (Discount is now higher)_" : "_Update (Discount is now lower)_")+` (`+dbData.status+`)
-  [  ](`+dbData.thumbnailURL+`)
-  Original price: `+dbData.originalPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-  Discount price: `+dbData.discountPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-  Discount: -`+dbData.discount/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-
-  Getting key: `+dbData.codeRedemptionOnly+`
-  Ends on : `+new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'})+`
-  `
-
-  bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
-    console.error(error.code);
-    console.error(error.response);
-  });
-  
-}
-
 //#endregion
 
 
@@ -403,21 +410,46 @@ function sendTelegramMessage(dbData, changes) {
 function sendMessage(dbData, changes) {
   console.info(`
 ========================================================================
-  Store: `+dbData.store+`
+  Store: ` + dbData.store + `
 
-  `+dbData.title+` from `+dbData.sellerName+`
-  `+(changes === "new" ? "NEW" : changes === "higher" ? "Update (Discount is now higher)" : "Update (Discount is now lower)")+((dbData.status.length > 0) ? ` (`+dbData.status+`) ` : `` )+`
+  ` + dbData.title + ` from ` + dbData.sellerName + `
+  ` + (changes === "new" ? "NEW" : changes === "higher" ? "Update (Discount is now higher)" : "Update (Discount is now lower)") + ((dbData.status.length > 0) ? ` (`+dbData.status+`) ` : ``) + `
   
-  Original price: `+dbData.originalPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-  Discount price: `+dbData.discountPrice/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
-  Discount: -`+dbData.discount/Math.pow(10,dbData.currencyDecimals)+` `+dbData.currencyCode+`
+  Original price: ` + dbData.originalPrice/Math.pow(10,dbData.currencyDecimals) + ` ` + dbData.currencyCode + `
+  Discount price: ` + dbData.discountPrice/Math.pow(10,dbData.currencyDecimals) + ` ` + dbData.currencyCode + `
+  Discount: -` + dbData.discount/Math.pow(10,dbData.currencyDecimals) + ` ` + dbData.currencyCode + ` ` + (dbData.discountPercent !== undefined ? "(~" + dbData.discountPercent + "%)" : "(~" + Math.round(dbData.discount / dbData.originalPrice * 100) + "%)") + `
 ` + ( dbData.store === 'epic' ? `
-  Getting key: `+dbData.codeRedemptionOnly+`
-  Ends on : `+new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}) + `
+  Getting key: ` + dbData.codeRedemptionOnly+`
+  Ends on : ` + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}) + `
 ` : `` ) + `========================================================================
   `)
-
   sendTelegramMessage(dbData, changes)
+}
+
+function sendTelegramMessage(dbData, changes) {
+  if (bot === undefined) {
+    return;
+  }
+
+  const message = `
+*Store: ` + dbData.store + `*
+
+*` + dbData.title + ` from ` + dbData.sellerName + `*
+` + (changes === "new" ? "_NEW_" : changes === "higher" ? "_Update (Discount is now higher)_" : "_Update (Discount is now lower)_") + ((dbData.status.length > 0) ? ` (`+dbData.status+`) ` : ``) + `
+  [  ](` + dbData.thumbnailURL + `)
+  Original price: ` + dbData.originalPrice/Math.pow(10,dbData.currencyDecimals) + ` ` + dbData.currencyCode + `
+  Discount price: ` + dbData.discountPrice/Math.pow(10,dbData.currencyDecimals) + ` ` + dbData.currencyCode + `
+  Discount: -` + dbData.discount/Math.pow(10,dbData.currencyDecimals) + ` `+dbData.currencyCode+` ` + (dbData.discountPercent !== undefined ? "(~" + dbData.discountPercent + "%)" : "(~" + Math.round(dbData.discount / dbData.originalPrice * 100) + "%)") + `
+` + ( dbData.store === 'epic' ? `
+  Getting key: ` + dbData.codeRedemptionOnly + `
+  Ends on : ` + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}) + `
+` : `` ) 
+
+  bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
+    console.error(error.code);
+    console.error(error.response);
+  });
+  
 }
 
 //#endregion
@@ -468,10 +500,18 @@ async function deleteDB() {
   let date = new Date()
   const toRemoveIDs = []
   games.forEach((element, i) => {
-    let endDate = new Date(element.endDate)
-    if (endDate < date && element.store === 'epic') {
-      console.info("Removed from DB: " + element.title + " -> " + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}))
-      toRemoveIDs.push(i)
+    if (element.store === 'epic') {
+      let endDate = new Date(element.endDate)
+      if (endDate < date) {
+        console.info("Removed from DB: " + element.title + " -> " + new Date(dbData.endDate).toLocaleString(globTimezoneLocale, {timeZone: globTimezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: (glob12Hour==='true'), hour: '2-digit', minute: '2-digit'}))
+        toRemoveIDs.push(i)
+      }
+    } else if (element.store === 'steam') {
+      fetchSteamIndividualCashJson(element.id).then(x => {
+        if (x.discount_percent < globSteamGamePercent || x.final == x.initial) {
+          toRemoveIDs.push(i)
+        }
+      })
     }
   });
   toRemoveIDs.forEach(x => {
