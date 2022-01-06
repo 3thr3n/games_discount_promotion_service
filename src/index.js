@@ -277,7 +277,7 @@ function processSteamGameJson(json) {
     currencyCode: json.price_overview.currency,
     currencyDecimals: 2,
     thumbnailURL: json.header_image,
-    storeURL: 'https://'+steamStoreURL+"/app/"+json.steam_appid,
+    storeURL: 'https://'+steamStoreURL+'/app/'+json.steam_appid,
   }
   prepareWriteToDB(dbData)
 }
@@ -392,7 +392,7 @@ function processEpicJson(gameData) {
       currencyCode,
       currencyDecimals,
       thumbnailURL,
-      storeURL:epicgamesStoreURL+urlSlug+"?lang="+globLocale+"-"+globCountry,
+      storeURL: epicgamesStoreURL+urlSlug+'?lang='+globLocale+'-'+globCountry,
       endDate: endDates.length > 1 ? endDates : endDates[0],
     }
     prepareWriteToDB(dbData)
