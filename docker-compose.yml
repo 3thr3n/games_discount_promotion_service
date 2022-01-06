@@ -6,6 +6,7 @@ services:
     image: 3thr3n/games_discount_promotions_service:latest
     volumes:
       - ./db/:/usr/src/games_service/db/
+      - /etc/timezone:/etc/timezone:ro
     environment:
       # Basic
       - TIMEZONE=${TIMEZONE}
