@@ -32,6 +32,7 @@ const globCron = '0 0 ' + (process.env.CRON || defaults.cron)
 // EPIC
 const globEpic = process.env.EPIC_ENABLED || false
 const epicgamesURL = 'store-site-backend-static-ipv4.ak.epicgames.com'
+const epicgamesStoreURL = 'https://www.epicgames.com/store/en-US/p/'
 
 // STEAM
 const globSteam = process.env.STEAM_ENABLED || false
@@ -276,6 +277,7 @@ function processSteamGameJson(json) {
     currencyCode: json.price_overview.currency,
     currencyDecimals: 2,
     thumbnailURL: json.header_image,
+    storeURL: 'https://'+steamStoreURL+"/app/"+json.steam_appid,
   }
   prepareWriteToDB(dbData)
 }
@@ -339,7 +341,6 @@ async function fetchEpicJson() {
 
     res.on('end', () => {
       const epicgamesJson = JSON.parse(body)
-
       processEpicJson(epicgamesJson.data.Catalog.searchStore.elements)
     })
   })
@@ -352,7 +353,7 @@ async function fetchEpicJson() {
 function processEpicJson(gameData) {
   console.debug('- Running fetchEpicJson')
   for (let i = 0; i < gameData.length; i++) {
-    const {title, id, status, isCodeRedemptionOnly, seller, price, keyImages} = gameData[i]
+    const {title, id, status, isCodeRedemptionOnly, seller, price, keyImages, urlSlug} = gameData[i]
     const {originalPrice, discountPrice, discount, currencyCode, currencyInfo} = price.totalPrice
     if (originalPrice === 0 || discount === 0 || originalPrice === discountPrice) {
       continue
@@ -391,6 +392,7 @@ function processEpicJson(gameData) {
       currencyCode,
       currencyDecimals,
       thumbnailURL,
+      storeURL:epicgamesStoreURL+urlSlug+"?lang="+globLocale+"-"+globCountry,
       endDate: endDates.length > 1 ? endDates : endDates[0],
     }
     prepareWriteToDB(dbData)
@@ -436,6 +438,7 @@ function sendMessage(dbData, changes) {
           hour: '2-digit',
           minute: '2-digit',
         }) + '\n' : '' ) +
+  '  ' + dbData.store + ' store url: ' + dbData.storeURL + '\n' +
   '========================================================================'
 
   console.info(message)
@@ -474,7 +477,9 @@ function sendTelegramMessage(dbData, changes) {
             hour: '2-digit',
             minute: '2-digit',
           }) : ''
-    )
+    ) +
+    '\n' +
+    '[' + dbData.store + ' store url](' + dbData.storeURL + ')\n'
 
   bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
     console.error(error.code)
