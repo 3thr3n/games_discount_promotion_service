@@ -149,11 +149,9 @@ async function execGog() {
   const fetchGogJson = await gog.fetchGogJson(1)
   for (let i = 0; i < fetchGogJson.length; i++) {
     const gameData = fetchGogJson[i]
-    if (i < 3) {
-      const processGogGameJson = await gog.processGogGameJson(gameData)
-      if (processGogGameJson !== undefined) {
-        await prepareWriteToDB(processGogGameJson)
-      }
+    const processGogGameJson = await gog.processGogGameJson(gameData)
+    if (processGogGameJson !== undefined) {
+      await prepareWriteToDB(processGogGameJson)
     }
   }
   writeToDB()
