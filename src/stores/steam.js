@@ -1,6 +1,6 @@
 import https from 'https'
 
-import {steamAPIURL, steamStoreURL, locale as locale, steamGamePrice as steamGamePrice, steamGamePercentage as steamGamePercentage} from '../variables.js'
+import {steamAPIURL, steamStoreURL, locale, steamGamePrice, steamGamePercentage} from '../variables.js'
 
 export default class Steam {
   constructor() {}
@@ -19,7 +19,7 @@ export default class Steam {
         res.on('data', (d) => {
           body += d
         })
-    
+
         res.on('end', () => {
           try {
             const steamGamesJson = JSON.parse(body)
@@ -40,16 +40,16 @@ export default class Steam {
   }
 
   /**
-   * 
-   * @param {JSON} gameData 
-   * @returns {Promise<String[]>}
+   *
+   * @param {JSON} gameData
+   * @return {Promise<String[]>}
    */
   processSteamJson(gameData) {
     return new Promise((resolve) => {
       console.debug('- Running processSteamJson')
       const appidConcatArray = []
       let appidConcat = ''
-    
+
       gameData.forEach((game, i) => {
         const name = String(game.name)
         if (name.length > 0 && !name.match('demo')) {
@@ -65,9 +65,9 @@ export default class Steam {
   }
 
   /**
-   * 
-   * @param {String} appids 
-   * @returns {JSON}
+   *
+   * @param {String} appids
+   * @return {JSON}
    */
   fetchSteamCashJson(appids) {
     return new Promise((resolve, reject) => {
@@ -83,7 +83,7 @@ export default class Steam {
         res.on('data', (d) => {
           body += d
         })
-    
+
         res.on('end', () => {
           try {
             const steamStoreCashJson = JSON.parse(body)
@@ -103,9 +103,9 @@ export default class Steam {
   }
 
   /**
-   * 
-   * @param {JSON} cashData 
-   * @returns 
+   *
+   * @param {JSON} cashData
+   * @return {Promise<String[]>}
    */
   processSteamCashJson(cashData) {
     return new Promise((resolve) => {
@@ -137,7 +137,7 @@ export default class Steam {
         res.on('data', (d) => {
           body += d
         })
-    
+
         res.on('end', () => {
           try {
             const steamStoreGameJson = JSON.parse(body)

@@ -16,14 +16,14 @@ const steam = new Steam()
 const steamApiTimeout = 1500
 
 // Initailize Database
-import { writeToDB, prepareWriteToDB, deleteDB } from './db.js'
+import {writeToDB, prepareWriteToDB, deleteDB} from './db.js'
 
 // Configure Express
 app.get('/', function(req, res) {
   res.send(cronJob())
 })
 
-const wait=ms=>new Promise(resolve => setTimeout(resolve, ms));
+const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
 
 // =====================================================================
 // ------------------------------FUNCTIONS------------------------------
@@ -77,19 +77,19 @@ async function init() {
 // =====================================================================
 
 async function execSteam() {
-  let fetchSteamJson = await steam.fetchSteamJson()
-  let processSteamJson = await steam.processSteamJson(fetchSteamJson)
+  const fetchSteamJson = await steam.fetchSteamJson()
+  const processSteamJson = await steam.processSteamJson(fetchSteamJson)
 
   for (let i = 0; i < processSteamJson.length; i++) {
-    const concatedAppIds = processSteamJson[i];
+    const concatedAppIds = processSteamJson[i]
     await wait(steamApiTimeout)
-    let fetchSteamCashJson = await steam.fetchSteamCashJson(concatedAppIds)
-    let processSteamCashJson = await steam.processSteamCashJson(fetchSteamCashJson)
+    const fetchSteamCashJson = await steam.fetchSteamCashJson(concatedAppIds)
+    const processSteamCashJson = await steam.processSteamCashJson(fetchSteamCashJson)
 
     for (let j = 0; j < processSteamCashJson.length; j++) {
       const id = processSteamCashJson[j]
-      let fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
-      let processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
+      const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
+      const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
       prepareWriteToDB(processSteamGameJson)
     }
   }
@@ -103,7 +103,7 @@ async function execSteam() {
 
 function execEpic() {
   epic.fetchEpicJson(epicgamesURL, locale, country).then((x) => {
-    let listDbData = epic.processEpicJson(x, epicgamesStoreURL, locale, country)
+    const listDbData = epic.processEpicJson(x, epicgamesStoreURL, locale, country)
     if (listDbData !== undefined) {
       listDbData.forEach((dbData) => {
         prepareWriteToDB(dbData)

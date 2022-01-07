@@ -1,11 +1,11 @@
 import {steamGamePercentage, hour12, locale, steamStoreURL, timezoneLocale, timezone} from './variables.js'
 
 import {Low, JSONFile} from 'lowdb'
-import { sendMessage } from './msg.js'
+import {sendMessage} from './msg.js'
 
 import Steam from './stores/steam.js'
 
-let steam = new Steam()
+const steam = new Steam()
 
 const filePath = './db/db.json'
 const adapter = new JSONFile(filePath)
@@ -53,7 +53,7 @@ export async function deleteDB() {
   const date = new Date()
   const toRemoveIDs = []
   for (let i = 0; i < games.length; i++) {
-    const element = games[i];
+    const element = games[i]
     if (element.store === 'epic') {
       const endDate = new Date(element.endDate)
       if (endDate < date) {
@@ -74,16 +74,16 @@ export async function deleteDB() {
         toRemoveIDs.push(i)
       }
     } else if (element.store === 'steam') {
-      let gameJson = await steam.fetchSteamIndivdualJson(element.id, steamStoreURL, locale)
-      let price_overview = gameJson.price_overview
+      const gameJson = await steam.fetchSteamIndivdualJson(element.id, steamStoreURL, locale)
+      const priceOverview = gameJson.price_overview
 
-      if (price_overview.discount_percent < steamGamePercentage || price_overview.final == price_overview.initial) {
-        console.info('Removed steam-game from DB: ' + element.title + ' -> discount=' + price_overview.discount_percent + '%')
+      if (priceOverview.discount_percent < steamGamePercentage || priceOverview.final == priceOverview.initial) {
+        console.info('Removed steam-game from DB: ' + element.title + ' -> discount=' + priceOverview.discount_percent + '%')
         toRemoveIDs.push(i)
       }
     }
   }
-    
+
   toRemoveIDs.forEach((x) => {
     games.splice(x, 1)
   })

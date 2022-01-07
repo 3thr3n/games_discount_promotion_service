@@ -4,11 +4,11 @@ export default class Epic {
   constructor() {}
 
   /**
-   * 
+   *
    * @param {String} epicgamesURL Epicgames API URL
    * @param {String} locale global defined locale
    * @param {String} country gobal defined country
-   * @returns 
+   * @return {JSON}
    */
   fetchEpicJson(epicgamesURL, locale, country) {
     return new Promise((resolve, reject) => {
@@ -19,14 +19,14 @@ export default class Epic {
         path: '/freeGamesPromotions?locale=' + locale + '&country=' + country,
         method: 'GET',
       }
-  
+
       const req = https.request(options, (res) => {
         let body = ''
-  
+
         res.on('data', (d) => {
           body += d
         })
-  
+
         res.on('end', () => {
           const epicgamesJson = JSON.parse(body)
           resolve(epicgamesJson.data.Catalog.searchStore.elements)
@@ -40,18 +40,18 @@ export default class Epic {
   }
 
   /**
-   * 
+   *
    * @param {any} gameData Element from method "fetchEpicJson"
    * @param {String} epicgamesStoreURL Epicgames Store URL
    * @param {String} locale global defined locale
    * @param {String} country gobal defined country
-   * @returns
+   * @return {Promise<JSON[]>}
    */
   processEpicJson(gameData, epicgamesStoreURL, locale, country) {
     console.debug('- Running fetchEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
-      const {title, id, status, isCodeRedemptionOnly, seller, price, keyImages, urlSlug} = gameData[i]
+      const {title, id, isCodeRedemptionOnly, seller, price, keyImages, urlSlug} = gameData[i]
       const {originalPrice, discountPrice, discount, currencyCode, currencyInfo} = price.totalPrice
       if (originalPrice === 0 || discount === 0 || originalPrice === discountPrice) {
         continue
@@ -65,7 +65,7 @@ export default class Epic {
       const sellerName = seller.name
       const lineOffers = price.lineOffers
       const currencyDecimals = currencyInfo.decimals
-  
+
       const endDates = []
       lineOffers.forEach((x) => {
         if (x.appliedRules.length > 0) {
@@ -76,7 +76,7 @@ export default class Epic {
           })
         }
       })
-  
+
       const dbData = {
         store: 'epic',
         title,
