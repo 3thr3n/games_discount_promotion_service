@@ -15,7 +15,8 @@ export const country = process.env.COUNTRY || defaults.country
 export const cron = '0 0 ' + (process.env.CRON || defaults.cron)
 
 export const epicEnabled = process.env.EPIC_ENABLED === 'true' || false
-export const epicgamesURL = defaults.epic_api_url
+export const epicAPIURL = defaults.epic_api_url
+export const epicStoreURL = defaults.epic_store_url
 
 export const steamEnabled = process.env.STEAM_ENABLED === 'true' || false
 export const steamGamePrice = process.env.STEAM_GAME_PRICE || defaults.steam_game_price

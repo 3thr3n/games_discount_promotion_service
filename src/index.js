@@ -1,4 +1,4 @@
-import {country, cron, epicEnabled, locale, steamEnabled, epicgamesURL} from './variables.js'
+import {cron, epicEnabled, steamEnabled} from './variables.js'
 
 import express from 'express'
 const app = express()
@@ -8,7 +8,6 @@ import {CronJob} from 'cron'
 // EPIC
 import Epic from './stores/epic.js'
 const epic = new Epic()
-const epicgamesStoreURL = 'https://www.epicgames.com/store/en-US/p/'
 
 // STEAM
 import Steam from './stores/steam.js'
@@ -23,6 +22,12 @@ app.get('/', function(req, res) {
   res.send(cronJob())
 })
 
+/**
+ * Method to sleep x ms
+ *
+ * @param {number} ms
+ * @return {Promise<any>}
+ */
 const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
 
 // =====================================================================
@@ -43,7 +48,9 @@ const deleteJob = new CronJob('0 0 0 * * *', () => {
   deleteDB()
 }, null, false)
 
-// Runs every x m/h/d
+/**
+ * Runs every x hours
+ */
 async function cronJob() {
   if (steamEnabled) {
     execSteam()
@@ -57,7 +64,9 @@ async function cronJob() {
 // --------------------------------INIT---------------------------------
 // =====================================================================
 
-// Initial run on start
+/**
+ * Initial run after setup
+ */
 async function init() {
   await deleteDB()
   if (steamEnabled) {
@@ -76,6 +85,9 @@ async function init() {
 // --------------------------------STEAM--------------------------------
 // =====================================================================
 
+/**
+ * execution logic for steam
+ */
 async function execSteam() {
   const fetchSteamJson = await steam.fetchSteamJson()
   const processSteamJson = await steam.processSteamJson(fetchSteamJson)
@@ -101,9 +113,12 @@ async function execSteam() {
 // --------------------------------EPIC---------------------------------
 // =====================================================================
 
+/**
+ * execution logic for epic
+ */
 function execEpic() {
-  epic.fetchEpicJson(epicgamesURL, locale, country).then((x) => {
-    const listDbData = epic.processEpicJson(x, epicgamesStoreURL, locale, country)
+  epic.fetchEpicJson().then((x) => {
+    const listDbData = epic.processEpicJson(x)
     if (listDbData !== undefined) {
       listDbData.forEach((dbData) => {
         prepareWriteToDB(dbData)

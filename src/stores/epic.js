@@ -1,20 +1,23 @@
 import https from 'https'
 
+import {country, locale, epicAPIURL, epicStoreURL} from '../variables.js'
+
 export default class Epic {
+  /**
+   * Constructor
+   */
   constructor() {}
 
   /**
+   * Gets from the Epic-API a list of discounted games
    *
-   * @param {String} epicgamesURL Epicgames API URL
-   * @param {String} locale global defined locale
-   * @param {String} country gobal defined country
-   * @return {JSON}
+   * @return {JSON} a JSON with all discounted games
    */
-  fetchEpicJson(epicgamesURL, locale, country) {
+  fetchEpicJson() {
     return new Promise((resolve, reject) => {
       console.debug('Running fetchEpicJson')
       const options = {
-        hostname: epicgamesURL,
+        hostname: epicAPIURL,
         port: 443,
         path: '/freeGamesPromotions?locale=' + locale + '&country=' + country,
         method: 'GET',
@@ -40,14 +43,12 @@ export default class Epic {
   }
 
   /**
+   * Takes an list of discounted games and creates out of that an list of JSON for the database
    *
-   * @param {any} gameData Element from method "fetchEpicJson"
-   * @param {String} epicgamesStoreURL Epicgames Store URL
-   * @param {String} locale global defined locale
-   * @param {String} country gobal defined country
-   * @return {Promise<JSON[]>}
+   * @param {JSON[]} gameData List of discounted games
+   * @return {Promise<JSON[]>} prepared JSON for Database
    */
-  processEpicJson(gameData, epicgamesStoreURL, locale, country) {
+  processEpicJson(gameData) {
     console.debug('- Running fetchEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
@@ -89,7 +90,7 @@ export default class Epic {
         currencyCode,
         currencyDecimals,
         thumbnailURL,
-        storeURL: epicgamesStoreURL+urlSlug+'?lang='+locale+'-'+country,
+        storeURL: epicStoreURL+urlSlug+'?lang='+locale+'-'+country,
         endDate: endDates.length > 1 ? endDates : endDates[0],
       }
       listDbData.push(dbData)

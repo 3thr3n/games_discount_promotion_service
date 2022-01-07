@@ -3,8 +3,16 @@ import https from 'https'
 import {steamAPIURL, steamStoreURL, locale, steamGamePrice, steamGamePercentage} from '../variables.js'
 
 export default class Steam {
+  /**
+   * Constructor
+   */
   constructor() {}
 
+  /**
+   * Gets from the Steam-API all games as JSON
+   *
+   * @return {Promise<JSON>} a JSON with all games (id + name)
+   */
   fetchSteamJson() {
     return new Promise((resolve, reject) => {
       console.debug('Running fetchSteamJson')
@@ -40,9 +48,10 @@ export default class Steam {
   }
 
   /**
+   * Uses the JSON from the Steam API to get all game-ids and concated these to an acceptable request size (800 ids per request)
    *
-   * @param {JSON} gameData
-   * @return {Promise<String[]>}
+   * @param {JSON} gameData json with many items, which contains name + id of game
+   * @return {Promise<String[]>} list of concated ids
    */
   processSteamJson(gameData) {
     return new Promise((resolve) => {
@@ -65,9 +74,11 @@ export default class Steam {
   }
 
   /**
+   * With the concated ids, the function makes an request
+   * against the API for the prices of these ids
    *
-   * @param {String} appids
-   * @return {JSON}
+   * @param {String} appids concated string of ids
+   * @return {JSON} a JSON of prices for the specified ids
    */
   fetchSteamCashJson(appids) {
     return new Promise((resolve, reject) => {
@@ -103,9 +114,10 @@ export default class Steam {
   }
 
   /**
+   * Checks the inputed JSON, if the game has the correct properties to get displayed
    *
-   * @param {JSON} cashData
-   * @return {Promise<String[]>}
+   * @param {JSON} cashData JSON to check prices and percentage
+   * @return {Promise<String[]>} a List of Strings with ids from games
    */
   processSteamCashJson(cashData) {
     return new Promise((resolve) => {
@@ -124,6 +136,12 @@ export default class Steam {
     })
   }
 
+  /**
+   * Gets data for the game-id and returns these
+   *
+   * @param {String} appid id of game
+   * @return {Promise<JSON>} a JSON with data from game
+   */
   fetchSteamIndivdualJson(appid) {
     return new Promise((resolve, reject) => {
       const options = {
@@ -161,6 +179,12 @@ export default class Steam {
     })
   }
 
+  /**
+   * Prepares a JSON for input into the database
+   *
+   * @param {JSON} json gameData-JSON
+   * @return {JSON} prepared JSON for Database
+   */
   processSteamGameJson(json) {
     return {
       store: 'steam',
