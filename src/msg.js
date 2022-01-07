@@ -72,7 +72,7 @@ function sendTelegramMessage(dbData, changes) {
     (changes === 'new' ? '_NEW_' :
       changes === 'higher' ? '_Update (Discount is now higher)_' :
         changes === 'lower' ? '_Update (Discount is now lower)_' : '') + '\n' +
-    '[  ](' + dbData.thumbnailURL + ')\n' +
+    '[ ](' + dbData.thumbnailURL + ')\n' +
     '  ' + 'Original price: ' + dbData.originalPrice / Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + '\n' +
     '  ' + 'Discount price: ' + dbData.discountPrice / Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + '\n' +
     '  ' + 'Discount: -' +dbData.discount / Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + ' ' +
