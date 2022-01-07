@@ -9,13 +9,21 @@ if (token !== undefined && chatID !== undefined && token.length > 0 && chatID !=
   bot = new TelegramBot(token, {polling: false})
 }
 
+/**
+ * Writes a message to the console and if provided also to a chat in Telegram
+ *
+ * @param {JSON} dbData a JSON of game-data
+ * @param {String} changes (new/higher/lower)
+ */
 export function sendMessage(dbData, changes) {
   const message =
   '========================================================================\n' +
   '  Store: ' + dbData.store + '\n' +
   '\n' +
   '  ' + dbData.title + ' from ' + dbData.sellerName + '\n' +
-  '  ' + (changes === 'new' ? 'NEW' : changes === 'higher' ? 'Update (Discount is now higher)' : 'Update (Discount is now lower)') + '\n' +
+  '  ' + (changes === 'new' ? 'NEW' :
+            changes === 'higher' ? 'Update (Discount is now higher)' :
+              changes === 'lower' ? 'Update (Discount is now lower)' : '') + '\n' +
   '\n' +
   '  ' + 'Original price: ' + dbData.originalPrice/Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + '\n' +
   '  ' + 'Discount price: ' + dbData.discountPrice/Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + '\n' +
@@ -46,6 +54,12 @@ export function sendMessage(dbData, changes) {
   sendTelegramMessage(dbData, changes)
 }
 
+/**
+ * Writes if possible a message to telegram-chat
+ *
+ * @param {JSON} dbData a JSON of game-data
+ * @param {String} changes (new/higher/lower)
+ */
 function sendTelegramMessage(dbData, changes) {
   if (bot === undefined) {
     return
@@ -55,7 +69,9 @@ function sendTelegramMessage(dbData, changes) {
     '*Store: ' + dbData.store + '*\n' +
     '\n' +
     '[' + dbData.title + ' from ' + dbData.sellerName + '](' + dbData.storeURL + ')\n' +
-    (changes === 'new' ? '_NEW_' : changes === 'higher' ? '_Update (Discount is now higher)_' : '_Update (Discount is now lower)_') + '\n' +
+    (changes === 'new' ? '_NEW_' :
+      changes === 'higher' ? '_Update (Discount is now higher)_' :
+        changes === 'lower' ? '_Update (Discount is now lower)_' : '') + '\n' +
     '[  ](' + dbData.thumbnailURL + ')\n' +
     '  ' + 'Original price: ' + dbData.originalPrice / Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + '\n' +
     '  ' + 'Discount price: ' + dbData.discountPrice / Math.pow(10, dbData.currencyDecimals) + ' ' + dbData.currencyCode + '\n' +

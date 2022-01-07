@@ -9,5 +9,6 @@
   "steam_game_percent": 50,
   "steam_store_url":"store.steampowered.com",
   "steam_api_url":"api.steampowered.com",
-  "epic_api_url":"store-site-backend-static-ipv4.ak.epicgames.com"
+  "epic_api_url":"store-site-backend-static-ipv4.ak.epicgames.com",
+  "epic_store_url":"https://www.epicgames.com/store/en-US/p/"
 }

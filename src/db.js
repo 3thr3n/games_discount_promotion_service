@@ -14,6 +14,11 @@ const db = new Low(adapter)
 await checkDB()
 const {games} = db.data
 
+/**
+ * Writes the specified JSON in database (only in memory)
+ *
+ * @param {JSON} dbData JSON-data to write in database
+ */
 export async function prepareWriteToDB(dbData) {
   console.debug('* Running prepareWriteToDB')
   const postIndex = games.findIndex((p) => p.id === dbData.id)
@@ -37,17 +42,28 @@ export async function prepareWriteToDB(dbData) {
   }
 }
 
+/**
+ * Writes the database from memory on the disk
+ */
 export async function writeToDB() {
   console.debug('* Running writeToDB')
   db.write()
 }
 
+/**
+ * Checks if the db is readable and setup
+ */
 async function checkDB() {
   console.debug('* Running checkDB')
   await db.read()
   db.data ||= {games: []}
 }
 
+/**
+ * Deletes out of database if:
+ * - epic: endDate is older than today
+ * - steam: discount is under the threshold or no discount is found for the game
+ */
 export async function deleteDB() {
   console.debug('* Running deleteDB')
   const date = new Date()

@@ -2,3 +2,8 @@ node_modules
 .env
 .env_template
 db.json
+.git
+.github
+Dockerfile
+docker-compose.yml
+.gitignore
