@@ -1,4 +1,4 @@
-import {cron, epicEnabled, steamEnabled} from './variables.js'
+import {cron, epicEnabled, gogEnabled, steamEnabled} from './variables.js'
 
 import express from 'express'
 const app = express()
@@ -13,6 +13,10 @@ const epic = new Epic()
 import Steam from './stores/steam.js'
 const steam = new Steam()
 const steamApiTimeout = 1500
+
+//GOG
+import Gog from './stores/gog.js'
+const gog = new Gog()
 
 // Initailize Database
 import {writeToDB, prepareWriteToDB, deleteDB} from './db.js'
@@ -58,6 +62,9 @@ async function cronJob() {
   if (epicEnabled) {
     execEpic()
   }
+  if (gogEnabled) {
+    execGog()
+  }
 }
 
 // =====================================================================
@@ -74,6 +81,9 @@ async function init() {
   }
   if (epicEnabled) {
     execEpic()
+  }
+  if (gogEnabled) {
+    execGog()
   }
   botJob.start()
   deleteJob.start()
@@ -102,7 +112,7 @@ async function execSteam() {
       const id = processSteamCashJson[j]
       const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
       const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
-      prepareWriteToDB(processSteamGameJson)
+      await prepareWriteToDB(processSteamGameJson)
     }
   }
 
@@ -116,16 +126,38 @@ async function execSteam() {
 /**
  * execution logic for epic
  */
-function execEpic() {
-  epic.fetchEpicJson().then((x) => {
-    const listDbData = epic.processEpicJson(x)
-    if (listDbData !== undefined) {
-      listDbData.forEach((dbData) => {
-        prepareWriteToDB(dbData)
-      })
+async function execEpic() {
+  const fetchEpicJson = await epic.fetchEpicJson()
+  const listDbData = await epic.processEpicJson(fetchEpicJson)
+  if (listDbData !== undefined) {
+    for (let i = 0; i < listDbData.length; i++) {
+      const dbData = listDbData[i];
+      await prepareWriteToDB(dbData)
     }
-    writeToDB()
-  })
+  }
+  writeToDB()
+  
+}
+
+// =====================================================================
+// ---------------------------------GOG---------------------------------
+// =====================================================================
+
+/**
+ * execution logic for gog
+ */
+async function execGog() {
+  const fetchGogJson = await gog.fetchGogJson(1)
+  for (let i = 0; i < fetchGogJson.length; i++) {
+    const gameData = fetchGogJson[i];
+    if (i < 3) {
+      const processGogGameJson = await gog.processGogGameJson(gameData)
+      if (processGogGameJson !== undefined) {
+        await prepareWriteToDB(processGogGameJson)
+      }
+    }
+  }
+  writeToDB()
 }
 
 // =====================================================================

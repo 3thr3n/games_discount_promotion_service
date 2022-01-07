@@ -15,31 +15,43 @@ await checkDB()
 const {games} = db.data
 
 /**
+ * Method to sleep x ms
+ *
+ * @param {number} ms
+ * @return {Promise<any>}
+ */
+ const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
  * Writes the specified JSON in database (only in memory)
  *
  * @param {JSON} dbData JSON-data to write in database
  */
 export async function prepareWriteToDB(dbData) {
-  console.debug('* Running prepareWriteToDB')
-  const postIndex = games.findIndex((p) => p.id === dbData.id)
-  const post = games[postIndex]
-
-  if (post === undefined) {
-    games.push(dbData)
-    sendMessage(dbData, 'new')
-  } else {
-    if (post.discount !== dbData.discount) {
-      if (post.discount < dbData.discount) {
-        // Higher discount as before
-        games[postIndex] = dbData
-        sendMessage(dbData, 'higher')
-      } else {
-        // lower discount
-        games[postIndex] = dbData
-        sendMessage(dbData, 'lower')
+  return new Promise(async (resolve) => {
+    console.debug('* Running prepareWriteToDB')
+    const postIndex = games.findIndex((p) => p.id === dbData.id)
+    const post = games[postIndex]
+  
+    if (post === undefined) {
+      games.push(dbData)
+      sendMessage(dbData, 'new')
+    } else {
+      if (post.discount !== dbData.discount) {
+        if (post.discount < dbData.discount) {
+          // Higher discount as before
+          games[postIndex] = dbData
+          sendMessage(dbData, 'higher')
+        } else {
+          // lower discount
+          games[postIndex] = dbData
+          sendMessage(dbData, 'lower')
+        }
       }
     }
-  }
+    await wait(500)
+    resolve()
+  })
 }
 
 /**

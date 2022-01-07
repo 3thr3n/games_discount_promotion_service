@@ -20,6 +20,13 @@ export const epicStoreURL = defaults.epic_store_url
 
 export const steamEnabled = process.env.STEAM_ENABLED === 'true' || false
 export const steamGamePrice = process.env.STEAM_GAME_PRICE || defaults.steam_game_price
-export const steamGamePercentage = process.env.STEAM_GAME_PERCENTAGE || defaults.steam_game_percent
+export const steamGamePercentage = process.env.STEAM_GAME_PERCENTAGE || defaults.steam_game_percentage
 export const steamStoreURL = defaults.steam_store_url
 export const steamAPIURL = defaults.steam_api_url
+
+export const gogEnabled = process.env.GOG_ENABLED === 'true' || false
+export const gogCurrency = process.env.GOG_CURRENCY || defaults.gog_currency
+export const gogGamePrice = process.env.GOG_GAME_PRICE || defaults.gog_game_price
+export const gogGamePercentage = process.env.GOG_GAME_PERCENTAGE || defaults.gog_game_percentage
+export const gogAPIURL = defaults.gog_url
+export const gogImageURL = defaults.gog_image_url
