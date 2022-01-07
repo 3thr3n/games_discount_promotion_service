@@ -1,6 +1,6 @@
 import https from 'https'
 
-import {country, timezoneLocale, gogAPIURL, gogImageURL, gogCurrency, gogGamePrice, gogGamePercentage} from '../variables.js'
+import {country, timezoneLocale, gogStoreURL, gogImageURL, gogCurrency, gogGamePrice, gogGamePercentage, gogAPIURL} from '../variables.js'
 
 export default class Gog {
   /**
@@ -19,7 +19,7 @@ export default class Gog {
     return new Promise((resolve, reject) => {
       console.debug('Running fetchGogJson')
       const options = {
-        hostname: gogAPIURL,
+        hostname: gogStoreURL,
         port: 443,
         path: '/games/ajax/filtered?mediaType=game&price=discounted&page='+page,
         method: 'GET',
@@ -79,8 +79,43 @@ export default class Gog {
       discount: Math.round(parseFloat(json.price.discountDifference)*100),
       currencyCode: json.price.symbol,
       currencyDecimals: 2,
-      thumbnailURL: 'https://'+gogImageURL+(regexResult[1])+'_product_card_v2_mobile_slider_639.jpg',
-      storeURL: 'https://'+gogAPIURL+json.url,
+      thumbnailURL: 'https://'+gogImageURL+(regexResult[1])+'.jpg',
+      storeURL: 'https://'+gogStoreURL+json.url,
     }
+  }
+
+  /**
+   * Gets for the specified id the prices and returns these as JSON
+   *
+   * @param {string} appid id of game
+   * @return {Promise<JSON>} a JSON with prices
+   */
+  fetchGogIndividualJson(appid) {
+    return new Promise((resolve, reject) => {
+      console.debug('Running fetchGogJson')
+      const options = {
+        hostname: gogAPIURL,
+        port: 443,
+        path: '/products/'+appid+'/prices?countryCode='+country+'&currency='+gogCurrency,
+        method: 'GET',
+      }
+
+      const req = https.request(options, (res) => {
+        let body = ''
+
+        res.on('data', (d) => {
+          body += d
+        })
+
+        res.on('end', async () => {
+          const gogJson = JSON.parse(body)
+          resolve(gogJson['_embedded'].prices[0])
+        })
+      })
+      req.on('error', (error) => {
+        reject(error)
+      })
+      req.end()
+    })
   }
 }
