@@ -14,7 +14,7 @@ import Steam from './stores/steam.js'
 const steam = new Steam()
 const steamApiTimeout = 1500
 
-//GOG
+// GOG
 import Gog from './stores/gog.js'
 const gog = new Gog()
 
@@ -131,12 +131,11 @@ async function execEpic() {
   const listDbData = await epic.processEpicJson(fetchEpicJson)
   if (listDbData !== undefined) {
     for (let i = 0; i < listDbData.length; i++) {
-      const dbData = listDbData[i];
+      const dbData = listDbData[i]
       await prepareWriteToDB(dbData)
     }
   }
   writeToDB()
-  
 }
 
 // =====================================================================
@@ -149,7 +148,7 @@ async function execEpic() {
 async function execGog() {
   const fetchGogJson = await gog.fetchGogJson(1)
   for (let i = 0; i < fetchGogJson.length; i++) {
-    const gameData = fetchGogJson[i];
+    const gameData = fetchGogJson[i]
     if (i < 3) {
       const processGogGameJson = await gog.processGogGameJson(gameData)
       if (processGogGameJson !== undefined) {

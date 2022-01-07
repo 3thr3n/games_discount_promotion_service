@@ -1,6 +1,6 @@
 import https from 'https'
 
-import {country, timezoneLocale, gogAPIURL, gogImageURL, gogCurrency} from '../variables.js'
+import {country, timezoneLocale, gogAPIURL, gogImageURL, gogCurrency, gogGamePrice, gogGamePercentage} from '../variables.js'
 
 export default class Gog {
   /**
@@ -9,7 +9,7 @@ export default class Gog {
   constructor() {}
 
   /**
-   * Fetches all games from GOG-API  
+   * Fetches all games from GOG-API
    * If page is `1` then it will recursive load all others too
    *
    * @param {number} page which page will be loaded
@@ -23,7 +23,7 @@ export default class Gog {
         port: 443,
         path: '/games/ajax/filtered?mediaType=game&price=discounted&page='+page,
         method: 'GET',
-        headers: {'Cookie':'gog_lc='+country+'_'+gogCurrency+'_'+timezoneLocale}
+        headers: {'Cookie': 'gog_lc='+country+'_'+gogCurrency+'_'+timezoneLocale},
       }
 
       const req = https.request(options, (res) => {
@@ -62,11 +62,11 @@ export default class Gog {
   processGogGameJson(json) {
     const originalPrice = Math.round(parseFloat(json.price.baseAmount)*100)
     const discountPercent = Math.round(parseFloat(json.price.discount))
-    if (originalPrice < 1499 || discountPercent < 20) {
-      return 
+    if (originalPrice < gogGamePrice || discountPercent < gogGamePercentage) {
+      return
     }
 
-    const regex = new RegExp("(?://.*)(/.*)", 'gm')
+    const regex = new RegExp('(?://.*)(/.*)', 'gm')
     const regexResult = regex.exec(String(json.image))
     return {
       store: 'gog',
@@ -79,7 +79,7 @@ export default class Gog {
       discount: Math.round(parseFloat(json.price.discountDifference)*100),
       currencyCode: json.price.symbol,
       currencyDecimals: 2,
-      thumbnailURL: "https://"+gogImageURL+(regexResult[1])+"_product_card_v2_mobile_slider_639.jpg",
+      thumbnailURL: 'https://'+gogImageURL+(regexResult[1])+'_product_card_v2_mobile_slider_639.jpg',
       storeURL: 'https://'+gogAPIURL+json.url,
     }
   }

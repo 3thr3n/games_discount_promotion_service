@@ -20,7 +20,7 @@ const {games} = db.data
  * @param {number} ms
  * @return {Promise<any>}
  */
- const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
+const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
  * Writes the specified JSON in database (only in memory)
@@ -32,7 +32,7 @@ export async function prepareWriteToDB(dbData) {
     console.debug('* Running prepareWriteToDB')
     const postIndex = games.findIndex((p) => p.id === dbData.id)
     const post = games[postIndex]
-  
+
     if (post === undefined) {
       games.push(dbData)
       sendMessage(dbData, 'new')
