@@ -92,7 +92,6 @@ export default class Gog {
    */
   fetchGogIndividualJson(appid) {
     return new Promise((resolve, reject) => {
-      console.debug('Running fetchGogJson')
       const options = {
         hostname: gogAPIURL,
         port: 443,
