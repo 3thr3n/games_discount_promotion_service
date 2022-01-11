@@ -7,6 +7,8 @@ services:
     volumes:
       - ./db/:/usr/src/games_service/db/
       - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
     environment:
       # Basic
       - TIMEZONE=${TIMEZONE}
