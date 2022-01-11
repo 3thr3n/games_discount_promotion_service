@@ -124,8 +124,10 @@ export async function deleteDB() {
     }
   }
 
-  toRemoveIDs.forEach((x) => {
-    games.splice(x, 1)
-  })
+  for (let x = toRemoveIDs.length-1; x >= 0; x--) {
+    const id = toRemoveIDs[x]
+    games.splice(id, 1)
+  }
+
   db.write()
 }
