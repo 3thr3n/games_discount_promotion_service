@@ -48,7 +48,7 @@ const botJob = new CronJob(cron, () => {
   cronJob()
 }, null, false)
 
-const deleteJob = new CronJob('0 0 0 * * *', () => {
+const deleteJob = new CronJob('0 0 1 * * *', () => {
   deleteDB()
 }, null, false)
 
