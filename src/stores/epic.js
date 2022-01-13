@@ -65,11 +65,11 @@ export default class Epic {
           thumbnailURL = x.url
         }
       })
-      
+
       const sellerName = seller.name
       const lineOffers = price.lineOffers
       const currencyDecimals = currencyInfo.decimals
-      const productUrl = productSlug.replace("/home", "")
+      const productUrl = productSlug.replace('/home', '')
 
       const endDates = []
       lineOffers.forEach((x) => {
