@@ -52,20 +52,24 @@ export default class Epic {
     console.debug('- Running fetchEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
-      const {title, id, isCodeRedemptionOnly, seller, price, keyImages, urlSlug} = gameData[i]
+      const {title, id, isCodeRedemptionOnly, seller, price, keyImages, productSlug} = gameData[i]
       const {originalPrice, discountPrice, discount, currencyCode, currencyInfo} = price.totalPrice
+
       if (originalPrice === 0 || discount === 0 || originalPrice === discountPrice) {
         continue
       }
+
       let thumbnailURL = ''
       keyImages.forEach((x) => {
         if (x.type === 'Thumbnail') {
           thumbnailURL = x.url
         }
       })
+
       const sellerName = seller.name
       const lineOffers = price.lineOffers
       const currencyDecimals = currencyInfo.decimals
+      const productUrl = productSlug.replace('/home', '')
 
       const endDates = []
       lineOffers.forEach((x) => {
@@ -90,7 +94,7 @@ export default class Epic {
         currencyCode,
         currencyDecimals,
         thumbnailURL,
-        storeURL: epicStoreURL+urlSlug+'?lang='+locale+'-'+country,
+        storeURL: epicStoreURL+productUrl+'?lang='+locale+'-'+country,
         endDate: endDates.length > 1 ? endDates : endDates[0],
       }
       listDbData.push(dbData)
