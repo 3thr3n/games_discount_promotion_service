@@ -33,7 +33,7 @@ function createTimer(id) {
 }
 
 /**
- * @param {Date} countDownDate
+ * @param {Date} distance
  * @return {String} a String
  */
 function runTime(distance) {

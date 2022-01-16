@@ -74,7 +74,7 @@ app.get('/gog', async function(req, res) {
 })
 
 app.get('/recently', async function(req, res) {
-  const gamesList = await getRecentlyDeletedGames();
+  const gamesList = await getRecentlyDeletedGames()
   const data = {
     title: 'Expired',
     gamesList,

@@ -93,7 +93,6 @@ export async function deleteDB() {
   const date = new Date()
   const toRemoveIDs = []
   for (let i = 0; i < games.length; i++) {
-    
     const element = games[i]
     if (element.store === 'epic') {
       const endDate = new Date(element.endDate)
@@ -137,7 +136,7 @@ export async function deleteDB() {
 
   for (let x = toRemoveIDs.length-1; x >= 0; x--) {
     const id = toRemoveIDs[x]
-    let date = new Date()
+    const date = new Date()
     date.setMilliseconds(0)
     date.setSeconds(0)
     deleted.push({
@@ -150,11 +149,13 @@ export async function deleteDB() {
   db.write()
 }
 
+/**
+ * Removes all games from schema `deleted` which are over the specified threshold
+ */
 function deleteOverThreshold() {
-
-  let data = deleted.filter((element) => {
-    let deletionDate = new Date(element.deleted)
-    let thresholdDate = new Date()
+  const data = deleted.filter((element) => {
+    const deletionDate = new Date(element.deleted)
+    const thresholdDate = new Date()
     thresholdDate.setDate(thresholdDate.getDate() - parseInt(expireThreshold))
 
     if (deletionDate > thresholdDate) return true
@@ -187,6 +188,11 @@ export async function getGameData(store) {
   })
 }
 
+/**
+ * Gets from the database all games which are recently deleted
+ *
+ * @return {JSON[]} a array of recently deleted Games
+ */
 export async function getRecentlyDeletedGames() {
   return new Promise(async (resolve) => {
     resolve(deleted.sort((a, b) => {
