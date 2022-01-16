@@ -1,4 +1,4 @@
-import {cron, epicEnabled, gogEnabled, steamEnabled} from './variables.js'
+import {cron, epicEnabled, gogEnabled, steamEnabled, timezone, timezoneLocale, hour12} from './variables.js'
 
 import path from 'path'
 import {fileURLToPath} from 'url'
@@ -24,7 +24,7 @@ import Gog from './stores/gog.js'
 const gog = new Gog()
 
 // Initailize Database
-import {writeToDB, prepareWriteToDB, deleteDB, getGameData} from './db.js'
+import {writeToDB, prepareWriteToDB, deleteDB, getGameData, getRecentlyDeletedGames} from './db.js'
 
 // Configure Express
 app.use(express.static(__dirname + '/public'))
@@ -39,6 +39,9 @@ app.get('/main', function(req, res) {
   const data = {
     mainTimer: later.schedule(mainCron).next(1),
     deleteTimer: later.schedule(deleteCron).next(1),
+    timezone,
+    timezoneLocale,
+    hour12,
   }
   res.render('content/main', {data})
 })
@@ -68,6 +71,18 @@ app.get('/gog', async function(req, res) {
     gamesList,
   }
   res.render('content/tables', {data})
+})
+
+app.get('/recently', async function(req, res) {
+  const gamesList = await getRecentlyDeletedGames();
+  const data = {
+    title: 'Expired',
+    gamesList,
+    timezone,
+    timezoneLocale,
+    hour12,
+  }
+  res.render('content/recently', {data})
 })
 
 // app.get('/data', function(req, res) {

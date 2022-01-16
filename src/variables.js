@@ -31,3 +31,5 @@ export const gogGamePercentage = process.env.GOG_GAME_PERCENTAGE || defaults.gog
 export const gogStoreURL = defaults.gog_store_url
 export const gogAPIURL = defaults.gog_api_url
 export const gogImageURL = defaults.gog_image_url
+
+export const expireThreshold = process.env.EXPIRE_THRESHOLD || defaults.expire_threshold

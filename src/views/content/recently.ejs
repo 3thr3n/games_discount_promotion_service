@@ -1,0 +1,33 @@
+<%- include('../templates/iframeInclude') %>
+
+<div class="jumbotron">
+    <h1><%= data.title %> discount-promotions</h1>
+    <table class="table">
+      <thead class="table-header">
+        <tr>
+          <th>Store</th>
+          <th>Game</th>
+          <th>Previous discount</th>
+          <th>Deleted on</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% data.gamesList.forEach(function(entry) { %>
+          <tr class="table-item">
+            <td data-content="Store"><a href="<%= entry.storeURL%>" target="_blank"><%= String(entry.store).toUpperCase() %></a></td>
+            <td data-content="Game"><a href="<%= entry.storeURL%>" target="_blank"><%= entry.title %></a></td>
+            <td data-content="Previous discount"><a href="<%= entry.storeURL%>" target="_blank"><%= "~" + entry.discountPercent + "%" %></a></td>
+            <td data-content="Deleted on"><a href="<%= entry.storeURL%>" target="_blank"><%= new Date(entry.deleted).toLocaleString(data.timezoneLocale, {
+              timeZone: data.timezone,
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour12: data.hour12 === 'true',
+              hour: '2-digit',
+              minute: '2-digit',
+            }) %></a></td>
+          </tr>
+        <% }); %>
+      </tbody>
+  </table>
+</div>
