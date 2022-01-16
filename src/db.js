@@ -1,4 +1,4 @@
-import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage} from './variables.js'
+import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage, expireThreshold} from './variables.js'
 
 import {Low, JSONFile} from 'lowdb'
 import {sendMessage} from './msg.js'
@@ -14,7 +14,7 @@ const adapter = new JSONFile(filePath)
 const db = new Low(adapter)
 
 await checkDB()
-const {games} = db.data
+const {games, deleted} = db.data
 
 /**
  * Method to sleep x ms
@@ -70,7 +70,14 @@ export async function writeToDB() {
 async function checkDB() {
   console.debug('* Running checkDB')
   await db.read()
-  db.data ||= {games: []}
+  db.data ||= {games: [], deleted: []}
+
+  if (!db.data.deleted) {
+    db.data = ({
+      games: db.data.games,
+      deleted: [],
+    })
+  }
 }
 
 /**
@@ -80,6 +87,9 @@ async function checkDB() {
  */
 export async function deleteDB() {
   console.debug('* Running deleteDB')
+  // Clear deleted db-schema
+  deleteOverThreshold()
+
   const date = new Date()
   const toRemoveIDs = []
   for (let i = 0; i < games.length; i++) {
@@ -126,10 +136,35 @@ export async function deleteDB() {
 
   for (let x = toRemoveIDs.length-1; x >= 0; x--) {
     const id = toRemoveIDs[x]
+    const date = new Date()
+    date.setMilliseconds(0)
+    date.setSeconds(0)
+    deleted.push({
+      ...games[id],
+      deleted: date,
+    })
     games.splice(id, 1)
   }
 
   db.write()
+}
+
+/**
+ * Removes all games from schema `deleted` which are over the specified threshold
+ */
+function deleteOverThreshold() {
+  const data = deleted.filter((element) => {
+    const deletionDate = new Date(element.deleted)
+    const thresholdDate = new Date()
+    thresholdDate.setDate(thresholdDate.getDate() - parseInt(expireThreshold))
+
+    if (deletionDate > thresholdDate) return true
+    return false
+  })
+
+  deleted.length = 0
+
+  deleted.push(...data)
 }
 
 /**
@@ -147,6 +182,20 @@ export async function getGameData(store) {
       }
     })
     resolve(elements.sort((a, b) => {
+      if (a.title < b.title) return -1
+      if (a.title > b.title) return 1
+    }))
+  })
+}
+
+/**
+ * Gets from the database all games which are recently deleted
+ *
+ * @return {JSON[]} a array of recently deleted Games
+ */
+export async function getRecentlyDeletedGames() {
+  return new Promise(async (resolve) => {
+    resolve(deleted.sort((a, b) => {
       if (a.title < b.title) return -1
       if (a.title > b.title) return 1
     }))

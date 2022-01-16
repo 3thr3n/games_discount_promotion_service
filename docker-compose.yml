@@ -9,14 +9,18 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
+    ports:
+      - ${PORT}:3000
     environment:
       # Basic
+      - TZ=${TIMEZONE}
       - TIMEZONE=${TIMEZONE}
       - TIMEZONE_LOCALE=${TIMEZONE_LOCALE}
       - HOUR_12=${HOUR_12}
       - LOCALE=${LOCALE}
       - COUNTRY=${COUNTRY}
       - CRON=${CRON}
+      - EXPIRE_THRESHOLD=${EXPIRE_THRESHOLD}
       # Telegram
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHATID=${TELEGRAM_CHATID}
