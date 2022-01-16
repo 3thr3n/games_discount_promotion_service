@@ -15,7 +15,7 @@ export default class Epic {
    */
   fetchEpicJson() {
     return new Promise((resolve, reject) => {
-      console.debug('Running fetchEpicJson')
+      console.debug('EPIC * Running fetchEpicJson')
       const options = {
         hostname: epicAPIURL,
         port: 443,
@@ -49,7 +49,7 @@ export default class Epic {
    * @return {Promise<JSON[]>} prepared JSON for Database
    */
   processEpicJson(gameData) {
-    console.debug('- Running fetchEpicJson')
+    console.debug('EPIC * Running fetchEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
       const {title, id, isCodeRedemptionOnly, seller, price, keyImages, productSlug} = gameData[i]

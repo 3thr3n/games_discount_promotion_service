@@ -15,7 +15,7 @@ export default class Steam {
    */
   fetchSteamJson() {
     return new Promise((resolve, reject) => {
-      console.debug('Running fetchSteamJson')
+      console.debug('STEAM * Running fetchSteamJson')
       const options = {
         hostname: steamAPIURL,
         port: 443,
@@ -55,7 +55,7 @@ export default class Steam {
    */
   processSteamJson(gameData) {
     return new Promise((resolve) => {
-      console.debug('- Running processSteamJson')
+      console.debug('STEAM * Running processSteamJson')
       const appidConcatArray = []
       let appidConcat = ''
 
@@ -82,7 +82,7 @@ export default class Steam {
    */
   fetchSteamCashJson(appids) {
     return new Promise((resolve, reject) => {
-      console.debug('-- Running fetchSteamCashJson')
+      console.debug('STEAM * Running fetchSteamCashJson')
       const options = {
         hostname: steamStoreURL,
         port: 443,
@@ -121,7 +121,7 @@ export default class Steam {
    */
   processSteamCashJson(cashData) {
     return new Promise((resolve) => {
-      console.debug('--- Running processSteamCashJson')
+      console.debug('STEAM * Running processSteamCashJson')
       const discounts = []
       Object.keys(cashData).forEach(function(k, v) {
         const gameAppID = cashData[k]

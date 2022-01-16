@@ -17,7 +17,7 @@ export default class Gog {
    */
   fetchGogJson(page) {
     return new Promise((resolve, reject) => {
-      console.debug('Running fetchGogJson')
+      console.debug('GOG * Running fetchGogJson, Page: '+page)
       const options = {
         hostname: gogStoreURL,
         port: 443,
@@ -60,6 +60,7 @@ export default class Gog {
    * @return {JSON} prepared JSON for Database
    */
   processGogGameJson(json) {
+    console.debug('GOG * Running processGogGameJson, Game: ' + json.title)
     const originalPrice = Math.round(parseFloat(json.price.baseAmount)*100)
     const discountPercent = Math.round(parseFloat(json.price.discount))
     if (originalPrice < gogGamePrice || discountPercent < gogGamePercentage) {
