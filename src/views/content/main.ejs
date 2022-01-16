@@ -1,0 +1,23 @@
+<%- include('../templates/iframeInclude') %>
+
+<div class="jumbotron">
+  <h1>Games discount-promotions service</h1>
+  <p>
+    This service is an gamestore-api-scraper, currenty for Epicgames, Steam and gog.<br />
+    It will find any discount on the shop-page. (Demos are excluded)
+  </p>
+  <div>
+    <h2>Gamestore check</h2>
+    <p>
+      Next execution: <%= new Date(data.mainTimer).toUTCString() %><br />
+      <div id="mainTimer"><%= new Date(data.mainTimer).getTime() %></div>
+    </p>
+  </div>
+  <div>
+    <h2>Cleanup database</h2>
+    <p>
+      Next execution: <%= new Date(data.deleteTimer).toUTCString() %> <br />
+      <div id="deleteTimer"><%= new Date(data.deleteTimer).getTime() %></div>
+    </p>
+  </div>
+</div>
