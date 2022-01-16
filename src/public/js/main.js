@@ -8,15 +8,22 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function createTimer(id) {
   const data = $( id ).text()
-  const countDownDate = new Date(parseFloat(data)).getTime()
+  // Transform String long date to correct long
+  const countDownDate = parseFloat(data)
 
-  $(id).text(runTime(countDownDate))
+  // Get now
+  const now = new Date().getTime()
+
+  // Find the distance between now and the count down date
+  const distance = countDownDate - now
+
+  $(id).text(runTime(distance))
 
   // Update the count down every 1 second
   const x = setInterval(function() {
     // Get today's date and time
     // Output the result in an element with id='demo'
-    $( id ).text(runTime(countDownDate))
+    $( id ).text(runTime(distance))
     // If the count down is over, write some text
     if (distance < 0) {
       clearInterval(x)
@@ -29,12 +36,7 @@ function createTimer(id) {
  * @param {Date} countDownDate
  * @return {String} a String
  */
-function runTime(countDownDate) {
-  const now = new Date().getTime()
-
-  // Find the distance between now and the count down date
-  const distance = countDownDate - now
-
+function runTime(distance) {
   // Time calculations for days, hours, minutes and seconds
   const days = Math.floor(distance / (1000 * 60 * 60 * 24))
   const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
