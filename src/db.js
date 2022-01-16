@@ -132,17 +132,23 @@ export async function deleteDB() {
   db.write()
 }
 
+/**
+ * Gets from the database all games from one store
+ *
+ * @param {String} store
+ * @return {JSON[]} a array of games
+ */
 export async function getGameData(store) {
   return new Promise(async (resolve) => {
     const elements = []
-    games.forEach(element => {
+    games.forEach((element) => {
       if (element.store == store) {
         elements.push(element)
       }
-    });
+    })
     resolve(elements.sort((a, b) => {
-      if(a.title < b.title) { return -1; }
-      if(a.title > b.title) { return 1; }
+      if (a.title < b.title) return -1
+      if (a.title > b.title) return 1
     }))
   })
 }

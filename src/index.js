@@ -1,14 +1,14 @@
 import {cron, epicEnabled, gogEnabled, steamEnabled} from './variables.js'
 
 import path from 'path'
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {fileURLToPath} from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 import express from 'express'
 const app = express()
 
-import later from 'later';
+import later from 'later'
 
 // EPIC
 import Epic from './stores/epic.js'
@@ -27,9 +27,9 @@ const gog = new Gog()
 import {writeToDB, prepareWriteToDB, deleteDB, getGameData} from './db.js'
 
 // Configure Express
-app.use(express.static(__dirname + '/public'));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'))
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'ejs')
 
 app.get('/', function(req, res) {
   res.render('index')
@@ -37,8 +37,8 @@ app.get('/', function(req, res) {
 
 app.get('/main', function(req, res) {
   const data = {
-    mainTimer:later.schedule(mainCron).next(1),
-    deleteTimer:later.schedule(deleteCron).next(1)
+    mainTimer: later.schedule(mainCron).next(1),
+    deleteTimer: later.schedule(deleteCron).next(1),
   }
   res.render('content/main', {data})
 })
@@ -47,7 +47,7 @@ app.get('/epic', async function(req, res) {
   const gamesList = await getGameData('epic')
   const data = {
     title: 'Epicgames',
-    gamesList
+    gamesList,
   }
   res.render('content/tables', {data})
 })
@@ -56,7 +56,7 @@ app.get('/steam', async function(req, res) {
   const gamesList = await getGameData('steam')
   const data = {
     title: 'Steam',
-    gamesList
+    gamesList,
   }
   res.render('content/tables', {data})
 })
@@ -65,7 +65,7 @@ app.get('/gog', async function(req, res) {
   const gamesList = await getGameData('gog')
   const data = {
     title: 'GOG',
-    gamesList
+    gamesList,
   }
   res.render('content/tables', {data})
 })
@@ -86,19 +86,14 @@ const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
 // ------------------------------FUNCTIONS------------------------------
 // =====================================================================
 
-Date.prototype.addHours = function(h) {
-  this.setTime(this.getTime() + (h*60*60*1000));
-  return this;
-}
-
 // #region init + cron
 
 // =====================================================================
 // -------------------------------CRONJOB-------------------------------
 // =====================================================================
 
-let mainCron = later.parse.cron(cron, true)
-let deleteCron = later.parse.cron('0 0 1 * * *', true)
+const mainCron = later.parse.cron(cron, true)
+const deleteCron = later.parse.cron('0 0 1 * * *', true)
 
 /**
  * Runs every x hours
@@ -125,11 +120,11 @@ async function cronJob() {
 async function init() {
   later.date.localTime()
 
-  let mainCronTimes = later.schedule(mainCron).next(1)
-  let deleteCronTimes = later.schedule(deleteCron).next(1)
+  const mainCronTimes = later.schedule(mainCron).next(1)
+  const deleteCronTimes = later.schedule(deleteCron).next(1)
 
-  let date = new Date();
-  date.addHours(1)
+  const date = new Date()
+  date.setHours(date.getHours() + 1)
 
   // Run only when the next execution is over one hour away
   if (deleteCronTimes > date) {
@@ -148,8 +143,8 @@ async function init() {
     }
   }
 
-  later.setInterval(await cronJob, mainCron);
-  later.setInterval(await deleteDB, deleteCron);
+  later.setInterval(await cronJob, mainCron)
+  later.setInterval(await deleteDB, deleteCron)
 }
 
 // #endregion

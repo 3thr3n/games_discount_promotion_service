@@ -1,44 +1,51 @@
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener('DOMContentLoaded', function() {
   createTimer('#mainTimer')
   createTimer('#deleteTimer')
-});
+})
 
+/**
+ * @param {String} id
+ */
 function createTimer(id) {
-  let data = $( id ).text()
-  let countDownDate = new Date(parseFloat(data)).getTime();
+  const data = $( id ).text()
+  const countDownDate = new Date(parseFloat(data)).getTime()
 
-  $( id ).text(runTime(countDownDate));
+  $(id).text(runTime(countDownDate))
 
   // Update the count down every 1 second
-  var x = setInterval(function() {
+  const x = setInterval(function() {
     // Get today's date and time
-    // Output the result in an element with id="demo"
-    $( id ).text(runTime(countDownDate));
-    // If the count down is over, write some text 
-    // if (distance < 0) {
-    //   clearInterval(x);
-    //   document.getElementById("demo").innerHTML = "EXPIRED";
-    // }
-  }, 5000);
+    // Output the result in an element with id='demo'
+    $( id ).text(runTime(countDownDate))
+    // If the count down is over, write some text
+    if (distance < 0) {
+      clearInterval(x)
+      $( id ).text('Refresh site')
+    }
+  }, 5000)
 }
 
+/**
+ * @param {Date} countDownDate
+ * @return {String} a String
+ */
 function runTime(countDownDate) {
-  var now = new Date().getTime();
-      
-  // Find the distance between now and the count down date
-  var distance = countDownDate - now;
-    
-  // Time calculations for days, hours, minutes and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const now = new Date().getTime()
 
-  let s = "Timer: "
+  // Find the distance between now and the count down date
+  const distance = countDownDate - now
+
+  // Time calculations for days, hours, minutes and seconds
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+
+  const s = 'Timer: '
   if (days == 0) {
-    return s + hours + "h "+ minutes + "m"
+    return s + hours + 'h '+ minutes + 'm'
   }
   if (days == 0 && hours == 0) {
-    return s + minutes + "m"
+    return s + minutes + 'm'
   }
-  return s + days + "d " + hours + "h " + minutes + "m"
+  return s + days + 'd ' + hours + 'h ' + minutes + 'm'
 }
