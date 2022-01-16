@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npx eslint src/*
+RUN npx eslint src
 
 ENTRYPOINT [ "node", "src/index.js" ]
