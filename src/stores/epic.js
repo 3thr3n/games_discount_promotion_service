@@ -91,6 +91,7 @@ export default class Epic {
         originalPrice,
         discount,
         discountPrice,
+        discountPercent: Math.round(Math.floor(discount/originalPrice*100)),
         currencyCode,
         currencyDecimals,
         thumbnailURL,
