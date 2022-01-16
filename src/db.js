@@ -31,7 +31,7 @@ const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
  */
 export async function prepareWriteToDB(dbData) {
   return new Promise(async (resolve) => {
-    console.debug('* Running prepareWriteToDB')
+    console.debug(String(dbData.store).toUpperCase() + ' * Running prepareWriteToDB')
     const postIndex = games.findIndex((p) => p.id === dbData.id)
     const post = games[postIndex]
 
@@ -60,7 +60,7 @@ export async function prepareWriteToDB(dbData) {
  * Writes the database from memory on the disk
  */
 export async function writeToDB() {
-  console.debug('* Running writeToDB')
+  console.debug('*** Running writeToDB')
   db.write()
 }
 
@@ -130,4 +130,25 @@ export async function deleteDB() {
   }
 
   db.write()
+}
+
+/**
+ * Gets from the database all games from one store
+ *
+ * @param {String} store
+ * @return {JSON[]} a array of games
+ */
+export async function getGameData(store) {
+  return new Promise(async (resolve) => {
+    const elements = []
+    games.forEach((element) => {
+      if (element.store == store) {
+        elements.push(element)
+      }
+    })
+    resolve(elements.sort((a, b) => {
+      if (a.title < b.title) return -1
+      if (a.title > b.title) return 1
+    }))
+  })
 }

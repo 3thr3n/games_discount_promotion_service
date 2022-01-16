@@ -1,9 +1,14 @@
 import {cron, epicEnabled, gogEnabled, steamEnabled} from './variables.js'
 
+import path from 'path'
+import {fileURLToPath} from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 import express from 'express'
 const app = express()
 
-import {CronJob} from 'cron'
+import later from 'later'
 
 // EPIC
 import Epic from './stores/epic.js'
@@ -19,12 +24,55 @@ import Gog from './stores/gog.js'
 const gog = new Gog()
 
 // Initailize Database
-import {writeToDB, prepareWriteToDB, deleteDB} from './db.js'
+import {writeToDB, prepareWriteToDB, deleteDB, getGameData} from './db.js'
 
 // Configure Express
+app.use(express.static(__dirname + '/public'))
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'ejs')
+
 app.get('/', function(req, res) {
-  res.send(cronJob())
+  res.render('index')
 })
+
+app.get('/main', function(req, res) {
+  const data = {
+    mainTimer: later.schedule(mainCron).next(1),
+    deleteTimer: later.schedule(deleteCron).next(1),
+  }
+  res.render('content/main', {data})
+})
+
+app.get('/epic', async function(req, res) {
+  const gamesList = await getGameData('epic')
+  const data = {
+    title: 'Epicgames',
+    gamesList,
+  }
+  res.render('content/tables', {data})
+})
+
+app.get('/steam', async function(req, res) {
+  const gamesList = await getGameData('steam')
+  const data = {
+    title: 'Steam',
+    gamesList,
+  }
+  res.render('content/tables', {data})
+})
+
+app.get('/gog', async function(req, res) {
+  const gamesList = await getGameData('gog')
+  const data = {
+    title: 'GOG',
+    gamesList,
+  }
+  res.render('content/tables', {data})
+})
+
+// app.get('/data', function(req, res) {
+//   res.sendFile(joinHtmlPath('data.html'))
+// })
 
 /**
  * Method to sleep x ms
@@ -44,13 +92,8 @@ const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
 // -------------------------------CRONJOB-------------------------------
 // =====================================================================
 
-const botJob = new CronJob(cron, () => {
-  cronJob()
-}, null, false)
-
-const deleteJob = new CronJob('0 0 1 * * *', () => {
-  deleteDB()
-}, null, false)
+const mainCron = later.parse.cron(cron, true)
+const deleteCron = later.parse.cron('0 0 1 * * *', true)
 
 /**
  * Runs every x hours
@@ -75,18 +118,33 @@ async function cronJob() {
  * Initial run after setup
  */
 async function init() {
-  await deleteDB()
-  if (steamEnabled) {
-    execSteam()
+  later.date.localTime()
+
+  const mainCronTimes = later.schedule(mainCron).next(1)
+  const deleteCronTimes = later.schedule(deleteCron).next(1)
+
+  const date = new Date()
+  date.setHours(date.getHours() + 1)
+
+  // Run only when the next execution is over one hour away
+  if (deleteCronTimes > date) {
+    await deleteDB()
   }
-  if (epicEnabled) {
-    execEpic()
+
+  if (mainCronTimes > date) {
+    if (steamEnabled) {
+      execSteam()
+    }
+    if (epicEnabled) {
+      execEpic()
+    }
+    if (gogEnabled) {
+      execGog()
+    }
   }
-  if (gogEnabled) {
-    execGog()
-  }
-  botJob.start()
-  deleteJob.start()
+
+  later.setInterval(await cronJob, mainCron)
+  later.setInterval(await deleteDB, deleteCron)
 }
 
 // #endregion

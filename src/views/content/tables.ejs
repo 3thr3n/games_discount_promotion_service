@@ -1,0 +1,25 @@
+<%- include('../templates/iframeInclude') %>
+
+<div class="jumbotron">
+    <h1><%= data.title %> discount-promotions</h1>
+    <table class="table">
+      <thead class="table-header">
+        <tr>
+          <th>Game</th>
+          <th>Original price</th>
+          <th>Currently priced</th>
+          <th>Discount percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% data.gamesList.forEach(function(entry) {%>
+          <tr class="table-item">
+            <td><a href="<%= entry.storeURL%>" target="_blank"><%= entry.title%></a></td>
+            <td><a href="<%= entry.storeURL%>" target="_blank"><%= (entry.originalPrice/Math.pow(10, entry.currencyDecimals)).toFixed(2) + ' ' + entry.currencyCode %></a></td>
+            <td><a href="<%= entry.storeURL%>" target="_blank"><%= (entry.discountPrice/Math.pow(10, entry.currencyDecimals)).toFixed(2) + ' ' + entry.currencyCode %></a></td>
+            <td><a href="<%= entry.storeURL%>" target="_blank"><%= "~" + entry.discountPercent + "%"%></a></td>
+          </tr>
+        <%});%>
+      </tbody>
+  </table>
+</div>
