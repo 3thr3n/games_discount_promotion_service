@@ -34,15 +34,22 @@ export default class Gog {
         })
 
         res.on('end', async () => {
-          const gogJson = JSON.parse(body)
-          if (page != 1) {
-            resolve(gogJson.products)
-          } else {
-            let products = gogJson.products
-            for (let i = 2; i <= parseInt(gogJson.totalPages); i++) {
-              products = products.concat(await this.fetchGogJson(i))
+          try {
+            const gogJson = JSON.parse(body)
+            if (page != 1) {
+              resolve(gogJson.products)
+            } else {
+              let products = gogJson.products
+              for (let i = 2; i <= parseInt(gogJson.totalPages); i++) {
+                products = products.concat(await this.fetchGogJson(i))
+              }
+              resolve(products)
             }
-            resolve(products)
+          } catch (error) {
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            console.error('Error: ' + error)
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            reject(error)
           }
         })
       })
@@ -108,8 +115,15 @@ export default class Gog {
         })
 
         res.on('end', async () => {
-          const gogJson = JSON.parse(body)
-          resolve(gogJson['_embedded'].prices[0])
+          try {
+            const gogJson = JSON.parse(body)
+            resolve(gogJson['_embedded'].prices[0])
+          } catch (error) {
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            console.error('Error: ' + error)
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            reject(error)
+          }
         })
       })
       req.on('error', (error) => {
