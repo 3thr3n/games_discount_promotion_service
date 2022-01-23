@@ -40,7 +40,6 @@ export default class Epic {
             console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             reject(error)
           }
-          
         })
       })
       req.on('error', (error) => {
