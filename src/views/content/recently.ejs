@@ -2,13 +2,13 @@
 
 <div class="jumbotron">
     <h1><%= data.title %> discount-promotions</h1>
-    <table class="table">
+    <table class="table" id="table">
       <thead class="table-header">
         <tr>
-          <th>Store</th>
-          <th>Game</th>
-          <th>Previous discount</th>
-          <th>Deleted on</th>
+          <th onclick="sortTable(0)">Store</th>
+          <th onclick="sortTable(1)">Game</th>
+          <th onclick="sortTable(2)">Previous discount</th>
+          <th onclick="sortTable(3)">Deleted on</th>
         </tr>
       </thead>
       <tbody>

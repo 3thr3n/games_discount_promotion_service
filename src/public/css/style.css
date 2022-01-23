@@ -137,9 +137,12 @@ iframe {
 }
 
 /* Table */
+.table-spacer {
+  padding: 0rem 4rem;
+}
+
 .table {
   width: 100%;
-  padding: 0rem 4rem;
 }
 
 table th {
@@ -148,7 +151,10 @@ table th {
 }
 
 .table tr:nth-child(odd) {
-  background: #ccc;
+  background: #999999;
+}
+.table tr:nth-child(even) {
+  background: #5c5c5c;
 }
 
 .table .table-header th {
@@ -175,39 +181,44 @@ only screen
 and (max-width: 760px), (min-device-width: 768px) 
 and (max-device-width: 1024px)  {
 
-/* Force table to not be like tables anymore */
-table, thead, tbody, th, td, tr {
-  display: block;
-}
+  .table-spacer {
+    padding: 0rem 0rem;
+  }
 
-.table {
-  padding: 0rem 0rem;
-}
+  /* Force table to not be like tables anymore */
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
 
-/* Hide table headers (but not display: none;, for accessibility) */
-thead tr {
-  position: absolute;
-  top: -9999px;
-  left: -9999px;
-}
+  .table {
+    padding: 0rem 0rem;
+  }
 
-tr {
-  margin: 0 0 1rem 0;
-}
-  
-tr:nth-child(odd) {
-  background: #ccc;
-}
+  /* Hide table headers (but not display: none;, for accessibility) */
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
 
-td {
-  /* Behave  like a "row" */
-  border: none;
-  border-bottom: 1px solid #eee;
-  position: relative;
-  padding-left: 2rem;
-  padding-top: 5px;
-}
+  tr {
+    margin: 0 0 1rem 0;
+  }
+    
+  tr:nth-child(odd) {
+    background: #ccc;
+  }
 
-td:before {
-  content: attr(data-content); font-weight: bold; }
+  td {
+    /* Behave  like a "row" */
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 2rem;
+    padding-top: 5px;
+  }
+
+  td:before {
+    content: attr(data-content); font-weight: bold; 
+  }
 }

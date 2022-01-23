@@ -31,8 +31,15 @@ export default class Epic {
         })
 
         res.on('end', () => {
-          const epicgamesJson = JSON.parse(body)
-          resolve(epicgamesJson.data.Catalog.searchStore.elements)
+          try {
+            const epicgamesJson = JSON.parse(body)
+            resolve(epicgamesJson.data.Catalog.searchStore.elements)
+          } catch (error) {
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            console.error('Error: ' + error)
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            reject(error)
+          }
         })
       })
       req.on('error', (error) => {
