@@ -9,6 +9,9 @@ const steam = new Steam()
 import Gog from './stores/gog.js'
 const gog = new Gog()
 
+import Ubisoft from './stores/ubisoft.js'
+const ubisoft = new Ubisoft()
+
 const filePath = './db/db.json'
 const adapter = new JSONFile(filePath)
 const db = new Low(adapter)
@@ -34,24 +37,27 @@ export async function prepareWriteToDB(dbData) {
     console.debug(String(dbData.store).toUpperCase() + ' * Running prepareWriteToDB')
     const postIndex = games.findIndex((p) => p.id === dbData.id)
     const post = games[postIndex]
+    let messageSent = false
 
     if (post === undefined) {
       games.push(dbData)
-      sendMessage(dbData, 'new')
+      messageSent = sendMessage(dbData, 'new')
     } else {
       if (post.discount !== dbData.discount) {
         if (post.discount < dbData.discount) {
           // Higher discount as before
           games[postIndex] = dbData
-          sendMessage(dbData, 'higher')
+          messageSent = sendMessage(dbData, 'higher')
         } else {
           // lower discount
           games[postIndex] = dbData
-          sendMessage(dbData, 'lower')
+          messageSent = sendMessage(dbData, 'lower')
         }
       }
     }
-    await wait(3100)
+    if (messageSent) {
+      await wait(3100)
+    }
     resolve()
   })
 }
@@ -129,6 +135,11 @@ export async function deleteDB() {
       if (discountPrice == originalPrice || Math.round((originalPrice - discountPrice) / originalPrice * 100) < gogGamePercentage) {
         console.info('Removed gog-game from DB: ' + element.title +
           ' -> discount=' + Math.round((originalPrice - discountPrice) / originalPrice * 100) + '%')
+        toRemoveIDs.push(i)
+      }
+    } else if (element.store === 'ubisoft') {
+      if (!await ubisoft.checkIfDiscounted(element)) {
+        console.info('Removed ubisoft-game from DB: ' + element.title + ' -> no discount')
         toRemoveIDs.push(i)
       }
     }

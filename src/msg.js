@@ -15,7 +15,7 @@ if (token !== undefined && chatID !== undefined && token.length > 0 && chatID !=
  * @param {JSON} dbData a JSON of game-data
  * @param {String} changes (new/higher/lower)
  */
-export function sendMessage(dbData, changes) {
+export async function sendMessage(dbData, changes) {
   const message =
   '========================================================================\n' +
   '  Store: ' + dbData.store + '\n' +
@@ -51,7 +51,8 @@ export function sendMessage(dbData, changes) {
   '========================================================================'
 
   console.info(message)
-  sendTelegramMessage(dbData, changes)
+  const response = await sendTelegramMessage(dbData, changes)
+  return response !== undefined
 }
 
 /**
@@ -60,9 +61,9 @@ export function sendMessage(dbData, changes) {
  * @param {JSON} dbData a JSON of game-data
  * @param {String} changes (new/higher/lower)
  */
-function sendTelegramMessage(dbData, changes) {
+async function sendTelegramMessage(dbData, changes) {
   if (bot === undefined) {
-    return
+    return false
   }
 
   const message =
@@ -95,7 +96,7 @@ function sendTelegramMessage(dbData, changes) {
           }) : ''
     )
 
-  bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
+  return await bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
     console.error(error.code)
     console.error(error.response)
   })
