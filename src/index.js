@@ -1,4 +1,4 @@
-import {cron, epicEnabled, gogEnabled, steamEnabled, timezone, timezoneLocale, hour12} from './variables.js'
+import {cron, epicEnabled, gogEnabled, steamEnabled, ubisoftEnabled, timezone, timezoneLocale, hour12} from './variables.js'
 
 import path from 'path'
 import {fileURLToPath} from 'url'
@@ -23,8 +23,14 @@ const steamApiTimeout = 1500
 import Gog from './stores/gog.js'
 const gog = new Gog()
 
+// UBISOFT
+import Ubisoft from './stores/ubisoft.js'
+const ubisoft = new Ubisoft()
+
 // Initailize Database
 import {writeToDB, prepareWriteToDB, deleteDB, getGameData, getRecentlyDeletedGames} from './db.js'
+
+// #region Setup Express
 
 // Configure Express
 app.use(express.static(__dirname + '/public'))
@@ -85,9 +91,7 @@ app.get('/recently', async function(req, res) {
   res.render('content/recently', {data})
 })
 
-// app.get('/data', function(req, res) {
-//   res.sendFile(joinHtmlPath('data.html'))
-// })
+// #endregion
 
 /**
  * Method to sleep x ms
@@ -95,7 +99,7 @@ app.get('/recently', async function(req, res) {
  * @param {number} ms
  * @return {Promise<any>}
  */
-const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // =====================================================================
 // ------------------------------FUNCTIONS------------------------------
@@ -122,6 +126,9 @@ async function cronJob() {
   }
   if (gogEnabled) {
     execGog()
+  }
+  if (ubisoftEnabled) {
+    execUbisoft()
   }
 }
 
@@ -155,6 +162,9 @@ async function init() {
     }
     if (gogEnabled) {
       execGog()
+    }
+    if (ubisoftEnabled) {
+      execUbisoft()
     }
   }
 
@@ -229,6 +239,33 @@ async function execGog() {
   }
   writeToDB()
 }
+
+// =====================================================================
+// -------------------------------UBISOFT-------------------------------
+// =====================================================================
+
+/**
+ * execution logic for epic
+ */
+async function execUbisoft() {
+  const fetchUbisoftHtml = await ubisoft.fetchUbisoftHtml(1)
+  for (let i = 0; i < fetchUbisoftHtml.length; i++) {
+    const gameTile = fetchUbisoftHtml[i]
+    const processUbisoftHtml = await ubisoft.processUbisoftHtml(gameTile).catch((err) => {
+      if (err.message !== 'No discount') {
+        console.error(err)
+      }
+    })
+    if (processUbisoftHtml !== undefined) {
+      for (let x = 0; x < processUbisoftHtml.length; x++) {
+        const gameJson = processUbisoftHtml[x]
+        await prepareWriteToDB(gameJson)
+      }
+    }
+  }
+  writeToDB()
+}
+
 
 // =====================================================================
 // --------------------------------START--------------------------------
