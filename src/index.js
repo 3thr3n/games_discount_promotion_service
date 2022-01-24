@@ -79,6 +79,15 @@ app.get('/gog', async function(req, res) {
   res.render('content/tables', {data})
 })
 
+app.get('/ubisoft', async function(req, res) {
+  const gamesList = await getGameData('ubisoft')
+  const data = {
+    title: 'Ubisoft',
+    gamesList,
+  }
+  res.render('content/tables', {data})
+})
+
 app.get('/recently', async function(req, res) {
   const gamesList = await getRecentlyDeletedGames()
   const data = {
