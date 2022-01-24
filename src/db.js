@@ -56,7 +56,7 @@ export async function prepareWriteToDB(dbData) {
       }
     }
     if (messageSent) {
-      await wait(3250)
+      await wait(3100)
     }
     resolve()
   })
