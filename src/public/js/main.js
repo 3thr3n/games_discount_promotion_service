@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   createTimer('#mainTimer')
   createTimer('#deleteTimer')
-  sortTable(0)
 })
 
 /**
