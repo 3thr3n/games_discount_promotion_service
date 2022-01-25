@@ -56,6 +56,21 @@ export async function sendMessage(dbData, changes) {
 }
 
 /**
+ * Writes a message, with the store and how many discounts they have
+ *
+ * @param {String} store which store
+ * @param {Integer} items how many messages
+ */
+export async function sendMessageToMany(store, items) {
+  const message =
+  '========================================================================\n' +
+  '  More than 30(' + items + ') deals at once at ' + store + '\n' +
+  '========================================================================'
+  console.info(message)
+  await sendTelegramMessageToMany(store, items)
+}
+
+/**
  * Writes if possible a message to telegram-chat
  *
  * @param {JSON} dbData a JSON of game-data
@@ -97,6 +112,27 @@ async function sendTelegramMessage(dbData, changes) {
     )
 
   return await bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
+    console.error(error.code)
+    console.error(error.response)
+  })
+}
+
+/**
+ * Sends a message to telegram if possible
+ *
+ * @param {String} store which store
+ * @param {Integer} items how many messages
+ * @return {Boolean} could be sent?
+ */
+async function sendTelegramMessageToMany(store, items) {
+  if (bot === undefined) {
+    return false
+  }
+  const message =
+  '*Aborted for store "'+store+'"*\n' +
+  '\n' +
+  'There are more than 30 deals for this store: _' + items + '_'
+  await bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {
     console.error(error.code)
     console.error(error.response)
   })

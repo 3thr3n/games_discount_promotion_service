@@ -1,7 +1,6 @@
 import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage, expireThreshold} from './variables.js'
 
 import {Low, JSONFile} from 'lowdb'
-import {sendMessage} from './msg.js'
 
 import Steam from './stores/steam.js'
 const steam = new Steam()
@@ -20,14 +19,6 @@ await checkDB()
 const {games, deleted} = db.data
 
 /**
- * Method to sleep x ms
- *
- * @param {number} ms
- * @return {Promise<any>}
- */
-const wait=(ms)=>new Promise((resolve) => setTimeout(resolve, ms))
-
-/**
  * Writes the specified JSON in database (only in memory)
  *
  * @param {JSON} dbData JSON-data to write in database
@@ -37,28 +28,24 @@ export async function prepareWriteToDB(dbData) {
     console.debug(String(dbData.store).toUpperCase() + ' * Running prepareWriteToDB')
     const postIndex = games.findIndex((p) => p.id === dbData.id)
     const post = games[postIndex]
-    let messageSent = false
-
+    let info = ''
     if (post === undefined) {
       games.push(dbData)
-      messageSent = sendMessage(dbData, 'new')
+      info = 'new'
     } else {
       if (post.discount !== dbData.discount) {
         if (post.discount < dbData.discount) {
           // Higher discount as before
           games[postIndex] = dbData
-          messageSent = sendMessage(dbData, 'higher')
+          info = 'higher'
         } else {
           // lower discount
           games[postIndex] = dbData
-          messageSent = sendMessage(dbData, 'lower')
+          info = 'lower'
         }
       }
     }
-    if (messageSent) {
-      await wait(3250)
-    }
-    resolve()
+    resolve(info)
   })
 }
 
