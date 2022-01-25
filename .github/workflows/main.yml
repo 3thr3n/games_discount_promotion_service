@@ -44,7 +44,7 @@ jobs:
         run: |
           git config --global user.name '3thr3n'
           git config --global user.email '3thr3n@users.noreply.github.com'
-          git push
+          git push ${{ steps.previoustag.outputs.tag }}
 
       - name: Set up Docker Buildx
         if: ${{ steps.previoustag.outputs.tag != 'v0.0.0' }}
