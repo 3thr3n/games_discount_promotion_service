@@ -34,8 +34,9 @@ jobs:
           rc-wording: 'Release,RELEASE,release,rc,RC'
           tag-prefix:  'v'
         
-      - name: Echo new Tag
-        run: echo ${{ steps.bumpTag.outputs.newTag }}
+      - name: cancelling
+        if: steps.bumpTag.outputs.newTag == ''
+        uses: andymckay/cancel-action@0.2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
