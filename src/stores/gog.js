@@ -1,4 +1,5 @@
 import https from 'https'
+import log from '../log.js'
 
 import {country, timezoneLocale, gogStoreURL, gogImageURL, gogCurrency, gogGamePrice, gogGamePercentage, gogAPIURL} from '../variables.js'
 
@@ -17,7 +18,7 @@ export default class Gog {
    */
   fetchGogJson(page) {
     return new Promise((resolve, reject) => {
-      console.debug('GOG * Running fetchGogJson, Page: '+page)
+      log('GOG * Running fetchGogJson, Page: '+page)
       const options = {
         hostname: gogStoreURL,
         port: 443,
@@ -67,7 +68,7 @@ export default class Gog {
    * @return {JSON} prepared JSON for Database
    */
   processGogGameJson(json) {
-    console.debug('GOG * Running processGogGameJson, Game: ' + json.title)
+    log('GOG * Running processGogGameJson, Game: ' + json.title)
     const originalPrice = Math.round(parseFloat(json.price.baseAmount)*100)
     const discountPercent = Math.round(parseFloat(json.price.discount))
     if (originalPrice < gogGamePrice || discountPercent < gogGamePercentage) {
@@ -99,6 +100,7 @@ export default class Gog {
    * @return {Promise<JSON>} a JSON with prices
    */
   fetchGogIndividualJson(appid) {
+    log('** fetchGogIndividualJson')
     return new Promise((resolve, reject) => {
       const options = {
         hostname: gogAPIURL,

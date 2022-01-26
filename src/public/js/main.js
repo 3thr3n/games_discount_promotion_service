@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   createTimer('#mainTimer')
   createTimer('#deleteTimer')
-  sortTable(0)
 })
 
 /**
@@ -62,7 +61,7 @@ function runTime(distance) {
  *
  * @param {int} n column
  */
-function sortTable(n) {
+function sortTable(n) { // eslint-disable-line no-unused-vars
   const table = document.getElementById('table')
   let switching = true
   let rows

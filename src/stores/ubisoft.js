@@ -1,4 +1,5 @@
 import {locale} from '../variables.js'
+import log from '../log.js'
 
 import {parse} from 'node-html-parser'
 import https from 'https'
@@ -13,6 +14,7 @@ export default class Ubisoft {
    */
   fetchUbisoftHtml(page) {
     return new Promise((resolve, reject) => {
+      log('UBI * Running fetchUbisoftHtml, Page: ' + page)
       const options = {
         hostname: 'store.ubi.com',
         port: 443,
@@ -72,6 +74,7 @@ export default class Ubisoft {
    */
   processUbisoftHtml(gameHtml) {
     return new Promise((resolve, reject) => {
+      log('UBI * Running fetchUbisoftHtml')
       const list = []
 
       try {
@@ -134,6 +137,7 @@ export default class Ubisoft {
    */
   fetchUbisoftSingleGame(gameJson) {
     return new Promise((resolve, reject) => {
+      log('UBI * Running fetchUbisoftSingleGame')
       const options = {
         hostname: 'store.ubi.com',
         port: 443,
@@ -190,6 +194,7 @@ export default class Ubisoft {
    */
   checkIfDiscounted(gameJson) {
     return new Promise(async (resolve, reject) => {
+      log('UBI * Running checkIfDiscounted')
       const gameHtml = await this.fetchUbisoftSingleGame(gameJson)
       const priceItem = gameHtml.querySelector('span.price-item')
 
