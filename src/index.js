@@ -119,11 +119,13 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
  * Checks if the size of send messages are greater than 30 and sends an different message.
  * After check, it sends the messages or sends only an info
  *
- * @param {List<JSON>} pendingMessages all messages for one shop
+ * @param {Map<String, JSON>} pendingMessages all messages for one shop
  */
-function sendMessages(pendingMessages) {
-  if (pendingMessages.size <= 30) {
-    pendingMessages.forEach(async (value) => {
+async function sendMessages(pendingMessages) {
+  const pendingChanges = [...pendingMessages].filter(([k, v]) => v.dbData !== undefined && v.info !== '')
+
+  if (pendingChanges.length <= 30) {
+    pendingChanges.forEach(async ([k, value]) => {
       if (value.info === undefined || value.info === '') {
         return
       }
@@ -133,7 +135,21 @@ function sendMessages(pendingMessages) {
       }
     })
   } else {
-    sendMessageToMany(pendingMessages.values().next().value.dbData.store, pendingMessages.size)
+    let store
+    for (let i = 0; i < pendingChanges.length; i++) {
+      if (i == 30) {
+        store = pendingChanges[i][1].dbData.store
+        break
+      }
+      if (pendingChanges[i][1].info === undefined || pendingChanges[i][1].info === '') {
+        return
+      }
+      const messageSent = sendMessage(pendingChanges[i][1].dbData, pendingChanges[i].info)
+      if (messageSent) {
+        await wait(3250)
+      }
+    }
+    sendMessageToMany(store, pendingChanges.size)
   }
 }
 
@@ -182,7 +198,7 @@ async function init() {
 
   // Run only when the next execution is over one hour away
   if (deleteCronTimes > date) {
-    await deleteDB()
+    // await deleteDB()
   }
 
   if (mainCronTimes > date) {
@@ -256,7 +272,6 @@ async function execEpic() {
       const dbData = listDbData[i]
       const info = await prepareWriteToDB(dbData)
       pendingMessages.set(dbData.title, {dbData, info})
-      pendingMessages.values().next().value
     }
   }
   sendMessages(pendingMessages)

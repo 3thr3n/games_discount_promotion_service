@@ -1,4 +1,5 @@
 import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage, expireThreshold} from './variables.js'
+import log from './log.js'
 
 import {Low, JSONFile} from 'lowdb'
 
@@ -25,7 +26,7 @@ const {games, deleted} = db.data
  */
 export async function prepareWriteToDB(dbData) {
   return new Promise(async (resolve) => {
-    console.debug(String(dbData.store).toUpperCase() + ' * Running prepareWriteToDB')
+    log(String(dbData.store).toUpperCase() + ' * Running prepareWriteToDB')
     const postIndex = games.findIndex((p) => p.id === dbData.id)
     const post = games[postIndex]
     let info = ''
@@ -53,7 +54,7 @@ export async function prepareWriteToDB(dbData) {
  * Writes the database from memory on the disk
  */
 export async function writeToDB() {
-  console.debug('*** Running writeToDB')
+  log('* Running writeToDB')
   db.write()
 }
 
@@ -61,7 +62,7 @@ export async function writeToDB() {
  * Checks if the db is readable and setup
  */
 async function checkDB() {
-  console.debug('* Running checkDB')
+  log('* Running checkDB')
   await db.read()
   db.data ||= {games: [], deleted: []}
 
@@ -79,7 +80,7 @@ async function checkDB() {
  * - steam: discount is under the threshold or no discount is found for the game
  */
 export async function deleteDB() {
-  console.debug('* Running deleteDB')
+  log('* Running deleteDB')
   // Clear deleted db-schema
   deleteOverThreshold()
 

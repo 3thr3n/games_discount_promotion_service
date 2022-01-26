@@ -1,4 +1,5 @@
 import https from 'https'
+import log from '../log.js'
 
 import {steamAPIURL, steamStoreURL, locale, steamGamePrice, steamGamePercentage} from '../variables.js'
 
@@ -15,7 +16,7 @@ export default class Steam {
    */
   fetchSteamJson() {
     return new Promise((resolve, reject) => {
-      console.debug('STEAM * Running fetchSteamJson')
+      log('STEAM * Running fetchSteamJson')
       const options = {
         hostname: steamAPIURL,
         port: 443,
@@ -55,7 +56,7 @@ export default class Steam {
    */
   processSteamJson(gameData) {
     return new Promise((resolve) => {
-      console.debug('STEAM * Running processSteamJson')
+      log('STEAM * Running processSteamJson')
       const appidConcatArray = []
       let appidConcat = ''
 
@@ -82,7 +83,7 @@ export default class Steam {
    */
   fetchSteamCashJson(appids) {
     return new Promise((resolve, reject) => {
-      console.debug('STEAM * Running fetchSteamCashJson')
+      log('STEAM * Running fetchSteamCashJson')
       const options = {
         hostname: steamStoreURL,
         port: 443,
@@ -121,7 +122,7 @@ export default class Steam {
    */
   processSteamCashJson(cashData) {
     return new Promise((resolve) => {
-      console.debug('STEAM * Running processSteamCashJson')
+      log('STEAM * Running processSteamCashJson')
       const discounts = []
       Object.keys(cashData).forEach(function(k, v) {
         const gameAppID = cashData[k]

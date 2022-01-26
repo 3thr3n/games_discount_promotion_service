@@ -52,7 +52,11 @@ export async function sendMessage(dbData, changes) {
 
   console.info(message)
   const response = await sendTelegramMessage(dbData, changes)
-  return response !== undefined
+  
+  if (bot === undefined) {
+    return false
+  }
+  return response === false || response !== undefined
 }
 
 /**
