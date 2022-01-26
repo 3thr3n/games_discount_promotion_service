@@ -1,18 +1,21 @@
 name: Creating a working Docker-Image
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     name: Building Docker-Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          ref: 'main'
+          fetch-depth: 4
           token: ${{ secrets.GH_3THR3N_TOKEN }}
       
       # Get npm
@@ -24,7 +27,7 @@ jobs:
       - name:  'Automated Version Bump'
         uses:  'phips28/gh-action-bump-version@master'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_3THR3N_TOKEN }}
         with:
           minor-wording:  'feature,Feature'
           major-wording:  'MAJOR, major, Major'
@@ -40,29 +43,19 @@ jobs:
         with:
           fallback: v0.0.0 # Optional fallback tag to use when no tag can be found
 
-      - name: Commit report
-        run: |
-          git config --global user.name '3thr3n'
-          git config --global user.email '3thr3n@users.noreply.github.com'
-          git push origin ${{ steps.previoustag.outputs.tag }}
-
       - name: Set up Docker Buildx
-        if: ${{ steps.previoustag.outputs.tag != 'v0.0.0' }}
         uses: docker/setup-buildx-action@v1
 
       - name: Set up QEMU
-        if: ${{ steps.previoustag.outputs.tag != 'v0.0.0' }}
         uses: docker/setup-qemu-action@v1
 
       - name: Login to DockerHub
-        if: ${{ steps.previoustag.outputs.tag != 'v0.0.0' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        if: ${{ steps.previoustag.outputs.tag != 'v0.0.0' }}
         uses: docker/build-push-action@v2
         with:
           platforms: linux/amd64,linux/arm64
