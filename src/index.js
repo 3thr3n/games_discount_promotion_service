@@ -27,6 +27,8 @@ const gog = new Gog()
 import Ubisoft from './stores/ubisoft.js'
 const ubisoft = new Ubisoft()
 
+let sendingMessages = false
+
 // Initailize Database
 import {writeToDB, prepareWriteToDB, deleteDB, getGameData, getRecentlyDeletedGames} from './db.js'
 import {sendMessage, sendMessageToMany} from './msg.js'
@@ -121,19 +123,23 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
  *
  * @param {Map<String, JSON>} pendingMessages all messages for one shop
  */
-async function sendMessages(pendingMessages) {
+async function sendingPendingMessages(pendingMessages) {
+  while (sendingMessages) {
+    await wait(1000)
+  }
+  sendingMessages = true
   const pendingChanges = [...pendingMessages].filter(([k, v]) => v.dbData !== undefined && v.info !== '')
 
   if (pendingChanges.length <= 30) {
-    pendingChanges.forEach(async ([k, value]) => {
-      if (value.info === undefined || value.info === '') {
+    for (let i = 0; i < pendingChanges.length; i++) {
+      if (pendingChanges[i][1].info === undefined || pendingChanges[i][1].info === '') {
         return
       }
-      const messageSent = sendMessage(value.dbData, value.info)
+      const messageSent = sendMessage(pendingChanges[i][1].dbData, pendingChanges[i][1].info)
       if (messageSent) {
         await wait(3250)
       }
-    })
+    }
   } else {
     let store
     for (let i = 0; i < pendingChanges.length; i++) {
@@ -144,13 +150,14 @@ async function sendMessages(pendingMessages) {
       if (pendingChanges[i][1].info === undefined || pendingChanges[i][1].info === '') {
         return
       }
-      const messageSent = sendMessage(pendingChanges[i][1].dbData, pendingChanges[i].info)
+      const messageSent = sendMessage(pendingChanges[i][1].dbData, pendingChanges[i][1].info)
       if (messageSent) {
         await wait(3250)
       }
     }
-    sendMessageToMany(store, pendingChanges.size)
+    sendMessageToMany(store, pendingChanges.length)
   }
+  sendingMessages = false
 }
 
 // #region init + cron
@@ -250,7 +257,7 @@ async function execSteam() {
     }
   }
 
-  sendMessages(pendingMessages)
+  await sendingPendingMessages(pendingMessages)
   writeToDB()
 }
 
@@ -274,7 +281,7 @@ async function execEpic() {
       pendingMessages.set(dbData.title, {dbData, info})
     }
   }
-  sendMessages(pendingMessages)
+  await sendingPendingMessages(pendingMessages)
   writeToDB()
 }
 
@@ -299,7 +306,7 @@ async function execGog() {
     }
   }
 
-  sendMessages(pendingMessages)
+  await sendingPendingMessages(pendingMessages)
   writeToDB()
 }
 
@@ -330,7 +337,7 @@ async function execUbisoft() {
       }
     }
   }
-  sendMessages(pendingMessages)
+  await sendingPendingMessages(pendingMessages)
   writeToDB()
 }
 

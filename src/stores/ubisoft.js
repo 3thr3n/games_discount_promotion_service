@@ -1,4 +1,4 @@
-import {locale} from '../variables.js'
+import {locale, ubisoftGamePercentage, ubisoftGamePrice} from '../variables.js'
 import log from '../log.js'
 
 import {parse} from 'node-html-parser'
@@ -94,15 +94,21 @@ export default class Ubisoft {
 
         // Original price
         const originalPriceString = decodeAndSanitize(gameHtml.querySelector('span.price-item').innerHTML)
-        const originalPrice = parseFloat(originalPriceString.replace(',', '.'))*100
+        const originalPrice = Math.round(parseFloat(originalPriceString.replace(',', '.'))*100)
         const currencyCode = parseCurrencyCode(originalPriceString)
 
         // Discount price
         const discountPriceString = decodeAndSanitize(gameHtml.querySelector('span.price-sales').innerHTML)
-        const discountPrice = parseFloat(discountPriceString.replace(',', '.'))*100
+        const discountPrice = Math.round(parseFloat(discountPriceString.replace(',', '.'))*100)
 
         // Discount
         const discount = originalPrice - discountPrice
+        const discountPercent = Math.round(discount/originalPrice*100)
+
+        if (discountPercent < ubisoftGamePercentage || originalPrice < ubisoftGamePrice) {
+          reject(new Error('No discount'))
+          return
+        }
 
         // StoreUrl
         const storeURL = 'https://store.ubi.com/' + locale + '/game?pid=' + id
@@ -114,7 +120,7 @@ export default class Ubisoft {
           sellerName: 'Ubisoft',
           originalPrice,
           discountPrice,
-          discountPercent: Math.round(discount/originalPrice*100),
+          discountPercent,
           discount,
           currencyCode,
           currencyDecimals: 2,
