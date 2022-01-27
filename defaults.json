@@ -21,5 +21,8 @@
   "gog_game_price": 1499,
   "gog_game_percentage": 20,
 
+  "ubisoft_game_price": 1999,
+  "ubisoft_game_percentage": 20,
+
   "expire_threshold": 7
 }

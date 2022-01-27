@@ -33,5 +33,7 @@ export const gogAPIURL = defaults.gog_api_url
 export const gogImageURL = defaults.gog_image_url
 
 export const ubisoftEnabled = process.env.UBISOFT_ENABLED === 'true' || false
+export const ubisoftGamePrice = process.env.UBISOFT_GAME_PRICE || defaults.ubisoft_game_price
+export const ubisoftGamePercentage = process.env.UBISOFT_GAME_PERCENTAGE || defaults.ubisoft_game_percentage
 
 export const expireThreshold = process.env.EXPIRE_THRESHOLD || defaults.expire_threshold
