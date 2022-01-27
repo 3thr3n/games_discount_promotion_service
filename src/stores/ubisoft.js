@@ -100,7 +100,7 @@ export default class Ubisoft {
         // Discount price
         const discountPriceString = decodeAndSanitize(gameHtml.querySelector('span.price-sales').innerHTML)
         const discountPrice = Math.round(parseFloat(discountPriceString.replace(',', '.'))*100)
-        
+
         // Discount
         const discount = originalPrice - discountPrice
         const discountPercent = Math.round(discount/originalPrice*100)
