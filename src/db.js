@@ -78,6 +78,8 @@ async function checkDB() {
  * Deletes out of database if:
  * - epic: endDate is older than today
  * - steam: discount is under the threshold or no discount is found for the game
+ *
+ * @param {int} x position of pointer (default 0)
  */
 export async function deleteDB(x) {
   log('* Running deleteDB')
@@ -142,6 +144,11 @@ export async function deleteDB(x) {
 }
 
 
+/**
+ * Deletes the ids from DB
+ *
+ * @param {List<int>} toRemoveIDs
+ */
 function deleteAndWriteDB(toRemoveIDs) {
   for (let x = toRemoveIDs.length-1; x >= 0; x--) {
     const id = toRemoveIDs[x]
@@ -188,9 +195,12 @@ function deleteOverThreshold() {
  */
 export async function getGameData(store, page, sort, asc) {
   return new Promise(async (resolve) => {
-    if (asc === undefined) { asc = true }
-    else if (typeof variable != "boolean") { asc = asc === 'true' }
-    
+    if (asc === undefined) {
+      asc = true
+    } else if (typeof variable != 'boolean') {
+      asc = asc === 'true'
+    }
+
     const elements = []
     games.forEach((element) => {
       if (element.store == store) {
@@ -207,28 +217,28 @@ export async function getGameData(store, page, sort, asc) {
             if (a.discountPercent == b.discountPercent) return 0
             if (a.discountPercent > b.discountPercent) return asc ? 1 : -1
           })
-          break;
+          break
         case 2:
           sortedList = elements.sort((a, b) => {
             if (a.discountPrice < b.discountPrice) return asc ? -1 : 1
             if (a.discountPrice == b.discountPrice) return 0
             if (a.discountPrice > b.discountPrice) return asc ? 1 : -1
           })
-          break;
+          break
         case 1:
           sortedList = elements.sort((a, b) => {
             if (a.originalPrice < b.originalPrice) return asc ? -1 : 1
             if (a.originalPrice == b.originalPrice) return 0
             if (a.originalPrice > b.originalPrice) return asc ? 1 : -1
           })
-          break;
+          break
         case 0:
         default:
           sortedList = elements.sort((a, b) => {
             if (a.title < b.title) return asc ? -1 : 1
             if (a.title > b.title) return asc ? 1 : -1
           })
-          break;
+          break
       }
       resolve(sortedList.splice(25*(page-1), 25))
     } else {
@@ -237,6 +247,12 @@ export async function getGameData(store, page, sort, asc) {
   })
 }
 
+/**
+ * Get's elements for the store and checks how many pages are needed
+ *
+ * @param {String} store
+ * @return {int} count pages
+ */
 export async function getGameDataPages(store) {
   return new Promise(async (resolve) => {
     const elements = []
@@ -252,12 +268,18 @@ export async function getGameDataPages(store) {
 /**
  * Gets from the database all games which are recently deleted
  *
+ * @param {int} page
+ * @param {int} sort
+ * @param {boolean} asc
  * @return {JSON[]} a array of recently deleted Games
  */
 export async function getRecentlyDeletedGames(page, sort, asc) {
   return new Promise(async (resolve) => {
-    if (asc === undefined) { asc = true }
-    else if (typeof variable != "boolean") { asc = asc === 'true' }
+    if (asc === undefined) {
+      asc = true
+    } else if (typeof variable != 'boolean') {
+      asc = asc === 'true'
+    }
 
     const elements = deleted.slice()
 
@@ -270,28 +292,28 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
             if (a.deleted == b.deleted) return 0
             if (a.deleted > b.deleted) return asc ? 1 : -1
           })
-          break;
+          break
         case 2:
           sortedList = elements.sort((a, b) => {
             if (a.discountPercent < b.discountPercent) return asc ? -1 : 1
             if (a.discountPercent == b.discountPercent) return 0
             if (a.discountPercent > b.discountPercent) return asc ? 1 : -1
           })
-          break;
+          break
         case 1:
           sortedList = elements.sort((a, b) => {
             if (a.title < b.title) return asc ? -1 : 1
             if (a.title > b.title) return asc ? 1 : -1
           })
-          break;
+          break
         case 0:
         default:
           sortedList = elements.sort((a, b) => {
             if (a.store < b.store) return asc ? -1 : 1
             if (a.store > b.store) return asc ? 1 : -1
           })
-          break;
-      } 
+          break
+      }
       resolve(sortedList.splice(25*(page-1), 25))
     } else {
       resolve(elements.splice(25*(page-1), 25))
@@ -299,6 +321,11 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
   })
 }
 
+/**
+ * Get's elements for the deleted games and checks how many pages are needed
+ *
+ * @return {int} count pages
+ */
 export async function getRecentlyDeletedGamesPages() {
   return new Promise(async (resolve) => {
     resolve(deleted.length > 0 ? Math.ceil(deleted.length / 25) : 1)

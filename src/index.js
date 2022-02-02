@@ -1,4 +1,6 @@
-import {cron, epicEnabled, gogEnabled, steamEnabled, ubisoftEnabled, timezone, timezoneLocale, hour12} from './variables.js'
+import {cron, epicEnabled, gogEnabled,
+  steamEnabled, ubisoftEnabled, timezone,
+  timezoneLocale, hour12} from './variables.js'
 
 import path from 'path'
 import {fileURLToPath} from 'url'
@@ -30,7 +32,9 @@ const ubisoft = new Ubisoft()
 let sendingMessages = false
 
 // Initailize Database
-import {writeToDB, prepareWriteToDB, deleteDB, getGameData, getRecentlyDeletedGames, getGameDataPages, getRecentlyDeletedGamesPages} from './db.js'
+import {writeToDB, prepareWriteToDB,
+  deleteDB, getGameData, getRecentlyDeletedGames,
+  getGameDataPages, getRecentlyDeletedGamesPages} from './db.js'
 import {sendMessage, sendMessageToMany} from './msg.js'
 
 // #region Setup Express
@@ -220,7 +224,7 @@ async function init() {
 
   // Run only when the next execution is over one hour away
   if (deleteCronTimes > date) {
-    // await deleteDB(0)
+    await deleteDB(0)
   }
 
   if (mainCronTimes > date) {

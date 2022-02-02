@@ -59,6 +59,7 @@ function runTime(distance) {
  * Sorts the table
  * @link https://www.w3schools.com/howto/howto_js_sort_table.asp
  *
+ * @param {int} page page
  * @param {int} n column
  */
 function sortTable(page, n) { // eslint-disable-line no-unused-vars
@@ -70,91 +71,20 @@ function sortTable(page, n) { // eslint-disable-line no-unused-vars
     asc = true
   }
   window.location = '?page='+page+'&sort='+n+'&asc='+asc
-
-  // const table = document.getElementById('table')
-  // let switching = true
-  // let rows
-  // let i
-  // let shouldSwitch
-  // let dir
-  // let switchcount = 0
-
-  // // Set the sorting direction to ascending:
-  // dir = 'asc'
-  // /* Make a loop that will continue until
-  // no switching has been done: */
-  // while (switching) {
-  //   // Start by saying: no switching is done:
-  //   switching = false
-  //   rows = table.rows
-  //   /* Loop through all table rows (except the
-  //   first, which contains table headers): */
-  //   for (i = 1; i < (rows.length - 1); i++) {
-  //     // Start by saying there should be no switching:
-  //     shouldSwitch = false
-  //     /* Get the two elements you want to compare,
-  //     one from current row and one from the next: */
-  //     const x = rows[i].getElementsByTagName('TD')[n].getElementsByTagName('A')[0]
-  //     const y = rows[i + 1].getElementsByTagName('TD')[n].getElementsByTagName('A')[0]
-  //     /* Check if the two rows should switch place,
-  //     based on the direction, asc or desc: */
-  //     const htmlTextX = String(x.innerHTML)
-  //     const htmlTextY = String(y.innerHTML)
-  //     const htmlFloatX = parseFloat(htmlTextX.slice(0, htmlTextX.length - 2))
-  //     const htmlFloatY = parseFloat(htmlTextY.slice(0, htmlTextY.length - 2))
-  //     if (dir == 'asc') {
-  //       if (isNaN(htmlFloatX) && isNaN(htmlFloatY)) {
-  //         if (htmlTextX.toLowerCase() > htmlTextY.toLowerCase()) {
-  //           // If so, mark as a switch and break the loop:
-  //           shouldSwitch = true
-  //           break
-  //         }
-  //       } else {
-  //         if (htmlFloatX > htmlFloatY) {
-  //           // If so, mark as a switch and break the loop:
-  //           shouldSwitch = true
-  //           break
-  //         }
-  //       }
-  //     } else if (dir == 'desc') {
-  //       if (isNaN(htmlFloatX) && isNaN(htmlFloatY)) {
-  //         if (htmlTextX.toLowerCase() < htmlTextY.toLowerCase()) {
-  //           // If so, mark as a switch and break the loop:
-  //           shouldSwitch = true
-  //           break
-  //         }
-  //       } else {
-  //         if (htmlFloatX < htmlFloatY) {
-  //           // If so, mark as a switch and break the loop:
-  //           shouldSwitch = true
-  //           break
-  //         }
-  //       }
-  //     }
-  //   }
-  //   if (shouldSwitch) {
-  //     /* If a switch has been marked, make the switch
-  //     and mark that a switch has been done: */
-  //     rows[i].parentNode.insertBefore(rows[i + 1], rows[i])
-  //     switching = true
-  //     // Each time a switch is done, increase this count by 1:
-  //     switchcount ++
-  //   } else {
-  //     /* If no switching has been done AND the direction is 'asc',
-  //     set the direction to 'desc' and run the while loop again. */
-  //     if (switchcount == 0 && dir == 'asc') {
-  //       dir = 'desc'
-  //       switching = true
-  //     }
-  //   }
-  // }
 }
 
+/**
+ * Checks the url for query-parameters and gets the specified parameter
+ *
+ * @param {String} name
+ * @param {String} url
+ * @return {Object} parameter
+ */
 function getParameterByName(name, url = window.location.href) {
-  name = name.replace(/[\[\]]/g, '\\$&');
-  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-      results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  name = name.replace(/[\[\]]/g, '\\$&')
+  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)')
+  const results = regex.exec(url)
+  if (!results) return null
+  if (!results[2]) return ''
+  return decodeURIComponent(results[2].replace(/\+/g, ' '))
 }
