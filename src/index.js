@@ -30,7 +30,7 @@ const ubisoft = new Ubisoft()
 let sendingMessages = false
 
 // Initailize Database
-import {writeToDB, prepareWriteToDB, deleteDB, getGameData, getRecentlyDeletedGames} from './db.js'
+import {writeToDB, prepareWriteToDB, deleteDB, getGameData, getRecentlyDeletedGames, getGameDataPages, getRecentlyDeletedGamesPages} from './db.js'
 import {sendMessage, sendMessageToMany} from './msg.js'
 
 // #region Setup Express
@@ -56,49 +56,64 @@ app.get('/main', function(req, res) {
 })
 
 app.get('/epic', async function(req, res) {
-  const gamesList = await getGameData('epic')
+  const gamesList = await getGameData('epic', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGameDataPages('epic')
   const data = {
     title: 'Epicgames',
     gamesList,
+    gamesListPages,
+    curPage: req.query['page'],
   }
   res.render('content/tables', {data})
 })
 
 app.get('/steam', async function(req, res) {
-  const gamesList = await getGameData('steam')
+  const gamesList = await getGameData('steam', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGameDataPages('steam')
   const data = {
     title: 'Steam',
     gamesList,
+    gamesListPages,
+    curPage: req.query['page'],
   }
   res.render('content/tables', {data})
 })
 
 app.get('/gog', async function(req, res) {
-  const gamesList = await getGameData('gog')
+  const gamesList = await getGameData('gog', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGameDataPages('gog')
   const data = {
     title: 'GOG',
     gamesList,
+    gamesListPages,
+    curPage: req.query['page'],
   }
   res.render('content/tables', {data})
 })
 
 app.get('/ubisoft', async function(req, res) {
-  const gamesList = await getGameData('ubisoft')
+  const gamesList = await getGameData('ubisoft', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGameDataPages('ubisoft')
   const data = {
     title: 'Ubisoft',
     gamesList,
+    gamesListPages,
+    curPage: req.query['page'],
   }
   res.render('content/tables', {data})
 })
 
 app.get('/recently', async function(req, res) {
-  const gamesList = await getRecentlyDeletedGames()
+  const gamesList = await getRecentlyDeletedGames(req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getRecentlyDeletedGamesPages()
   const data = {
     title: 'Expired',
     gamesList,
     timezone,
     timezoneLocale,
     hour12,
+    gamesListPages,
+    curPage: req.query['page'],
   }
   res.render('content/recently', {data})
 })
@@ -205,7 +220,7 @@ async function init() {
 
   // Run only when the next execution is over one hour away
   if (deleteCronTimes > date) {
-    // await deleteDB()
+    // await deleteDB(0)
   }
 
   if (mainCronTimes > date) {

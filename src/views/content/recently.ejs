@@ -5,10 +5,10 @@
     <table class="table" id="table">
       <thead class="table-header">
         <tr>
-          <th onclick="sortTable(0)">Store</th>
-          <th onclick="sortTable(1)">Game</th>
-          <th onclick="sortTable(2)">Previous discount</th>
-          <th onclick="sortTable(3)">Deleted on</th>
+          <th onclick="sortTable(<%=data.curPage%>, 0)">Store</th>
+          <th onclick="sortTable(<%=data.curPage%>, 1)">Game</th>
+          <th onclick="sortTable(<%=data.curPage%>, 2)">Previous discount</th>
+          <th onclick="sortTable(<%=data.curPage%>, 3)">Deleted on</th>
         </tr>
       </thead>
       <tbody>
@@ -30,4 +30,11 @@
         <% }); %>
       </tbody>
   </table>
+  <div class="pageination_center">
+    <div class="pageination" id="pageination">
+      <% for (let i = 1; i <= data.gamesListPages; i++) { %>
+        <a href='?page=<%= i %>' class='page<% if(i==parseInt(data.curPage)) { %> active<% } %>'><%= i %></a>
+      <% } %>
+    </div>
+  </div>
 </div>
