@@ -222,3 +222,27 @@ and (max-device-width: 1024px)  {
     content: attr(data-content); font-weight: bold; 
   }
 }
+
+/* Pageination */
+.pageination {
+  display: inline-block;
+}
+
+.pageination_center {
+  text-align: center;
+}
+
+.pageination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
+  margin: 0 4px;
+}
+
+.pageination a.active {
+  background-color: #161616;
+  color: white;
+  border: 1px solid #161616;
+}

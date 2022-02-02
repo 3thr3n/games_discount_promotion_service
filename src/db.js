@@ -78,20 +78,22 @@ async function checkDB() {
  * Deletes out of database if:
  * - epic: endDate is older than today
  * - steam: discount is under the threshold or no discount is found for the game
+ *
+ * @param {int} x position of pointer (default 0)
  */
-export async function deleteDB() {
+export async function deleteDB(x) {
   log('* Running deleteDB')
   // Clear deleted db-schema
   deleteOverThreshold()
 
   const date = new Date()
   const toRemoveIDs = []
-  for (let i = 0; i < games.length; i++) {
+  for (let i = x; i < games.length; i++) {
     const element = games[i]
     if (element.store === 'epic') {
       const endDate = new Date(element.endDate)
       if (endDate < date) {
-        console.info(
+        log(
             'Removed epic-game from DB: ' +
             element.title +
             ' -> ' +
@@ -112,7 +114,7 @@ export async function deleteDB() {
       const priceOverview = gameJson.price_overview
 
       if (priceOverview.discount_percent < steamGamePercentage || priceOverview.final == priceOverview.initial) {
-        console.info('Removed steam-game from DB: ' + element.title + ' -> discount=' + priceOverview.discount_percent + '%')
+        log('Removed steam-game from DB: ' + element.title + ' -> discount=' + priceOverview.discount_percent + '%')
         toRemoveIDs.push(i)
       }
     } else if (element.store === 'gog') {
@@ -121,18 +123,33 @@ export async function deleteDB() {
       const discountPrice = parseInt(gameJson.finalPrice)
 
       if (discountPrice == originalPrice || Math.round((originalPrice - discountPrice) / originalPrice * 100) < gogGamePercentage) {
-        console.info('Removed gog-game from DB: ' + element.title +
+        log('Removed gog-game from DB: ' + element.title +
           ' -> discount=' + Math.round((originalPrice - discountPrice) / originalPrice * 100) + '%')
         toRemoveIDs.push(i)
       }
     } else if (element.store === 'ubisoft') {
       if (!await ubisoft.checkIfDiscounted(element)) {
-        console.info('Removed ubisoft-game from DB: ' + element.title + ' -> no discount')
+        log('Removed ubisoft-game from DB: ' + element.title + ' -> no discount')
         toRemoveIDs.push(i)
       }
     }
+    if (i > 0 && i % 50 == 0) {
+      deleteAndWriteDB(toRemoveIDs)
+      await deleteDB((i+1 - toRemoveIDs.length))
+      return
+    }
   }
+  deleteAndWriteDB(toRemoveIDs)
+  log('* Finished deleteDB')
+}
 
+
+/**
+ * Deletes the ids from DB
+ *
+ * @param {List<int>} toRemoveIDs
+ */
+function deleteAndWriteDB(toRemoveIDs) {
   for (let x = toRemoveIDs.length-1; x >= 0; x--) {
     const id = toRemoveIDs[x]
     const date = new Date()
@@ -144,8 +161,9 @@ export async function deleteDB() {
     })
     games.splice(id, 1)
   }
-
-  db.write()
+  if (toRemoveIDs.length > 0) {
+    db.write()
+  }
 }
 
 /**
@@ -170,9 +188,72 @@ function deleteOverThreshold() {
  * Gets from the database all games from one store
  *
  * @param {String} store
+ * @param {int} page
+ * @param {int} sort
+ * @param {boolean} asc
  * @return {JSON[]} a array of games
  */
-export async function getGameData(store) {
+export async function getGameData(store, page, sort, asc) {
+  return new Promise(async (resolve) => {
+    if (asc === undefined) {
+      asc = true
+    } else if (typeof variable != 'boolean') {
+      asc = asc === 'true'
+    }
+
+    const elements = []
+    games.forEach((element) => {
+      if (element.store == store) {
+        elements.push(element)
+      }
+    })
+
+    if (sort !== undefined) {
+      let sortedList
+      switch (parseInt(sort)) {
+        case 3:
+          sortedList = elements.sort((a, b) => {
+            if (a.discountPercent < b.discountPercent) return asc ? -1 : 1
+            if (a.discountPercent == b.discountPercent) return 0
+            if (a.discountPercent > b.discountPercent) return asc ? 1 : -1
+          })
+          break
+        case 2:
+          sortedList = elements.sort((a, b) => {
+            if (a.discountPrice < b.discountPrice) return asc ? -1 : 1
+            if (a.discountPrice == b.discountPrice) return 0
+            if (a.discountPrice > b.discountPrice) return asc ? 1 : -1
+          })
+          break
+        case 1:
+          sortedList = elements.sort((a, b) => {
+            if (a.originalPrice < b.originalPrice) return asc ? -1 : 1
+            if (a.originalPrice == b.originalPrice) return 0
+            if (a.originalPrice > b.originalPrice) return asc ? 1 : -1
+          })
+          break
+        case 0:
+        default:
+          sortedList = elements.sort((a, b) => {
+            if (a.title < b.title) return asc ? -1 : 1
+            if (a.title > b.title) return asc ? 1 : -1
+          })
+          break
+      }
+      resolve(sortedList.splice(25*(page-1), 25))
+    } else {
+      resolve(elements.splice(25*(page-1), 25))
+    }
+  })
+}
+
+/**
+ * Get's elements for the store and checks how many pages are needed
+ *
+ * @param {String} store
+ * @return {int} count pages
+ */
+export async function getGameDataPages(store) {
   return new Promise(async (resolve) => {
     const elements = []
     games.forEach((element) => {
@@ -180,23 +261,73 @@ export async function getGameData(store) {
         elements.push(element)
       }
     })
-    resolve(elements.sort((a, b) => {
-      if (a.title < b.title) return -1
-      if (a.title > b.title) return 1
-    }))
+    resolve(elements.length > 0 ? Math.ceil(elements.length / 25) : 1)
   })
 }
 
 /**
  * Gets from the database all games which are recently deleted
  *
+ * @param {int} page
+ * @param {int} sort
+ * @param {boolean} asc
  * @return {JSON[]} a array of recently deleted Games
  */
-export async function getRecentlyDeletedGames() {
+export async function getRecentlyDeletedGames(page, sort, asc) {
   return new Promise(async (resolve) => {
-    resolve(deleted.sort((a, b) => {
-      if (a.title < b.title) return -1
-      if (a.title > b.title) return 1
-    }))
+    if (asc === undefined) {
+      asc = true
+    } else if (typeof variable != 'boolean') {
+      asc = asc === 'true'
+    }
+
+    const elements = deleted.slice()
+
+    if (sort !== undefined) {
+      let sortedList
+      switch (parseInt(sort)) {
+        case 3:
+          sortedList = elements.sort((a, b) => {
+            if (a.deleted < b.deleted) return asc ? -1 : 1
+            if (a.deleted == b.deleted) return 0
+            if (a.deleted > b.deleted) return asc ? 1 : -1
+          })
+          break
+        case 2:
+          sortedList = elements.sort((a, b) => {
+            if (a.discountPercent < b.discountPercent) return asc ? -1 : 1
+            if (a.discountPercent == b.discountPercent) return 0
+            if (a.discountPercent > b.discountPercent) return asc ? 1 : -1
+          })
+          break
+        case 1:
+          sortedList = elements.sort((a, b) => {
+            if (a.title < b.title) return asc ? -1 : 1
+            if (a.title > b.title) return asc ? 1 : -1
+          })
+          break
+        case 0:
+        default:
+          sortedList = elements.sort((a, b) => {
+            if (a.store < b.store) return asc ? -1 : 1
+            if (a.store > b.store) return asc ? 1 : -1
+          })
+          break
+      }
+      resolve(sortedList.splice(25*(page-1), 25))
+    } else {
+      resolve(elements.splice(25*(page-1), 25))
+    }
+  })
+}
+
+/**
+ * Get's elements for the deleted games and checks how many pages are needed
+ *
+ * @return {int} count pages
+ */
+export async function getRecentlyDeletedGamesPages() {
+  return new Promise(async (resolve) => {
+    resolve(deleted.length > 0 ? Math.ceil(deleted.length / 25) : 1)
   })
 }

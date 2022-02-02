@@ -17,6 +17,7 @@
         hour12: data.hour12 === 'true',
         hour: '2-digit',
         minute: '2-digit',
+        timeZoneName: 'short',
       }) %><br />
       <div id="mainTimer"><%= new Date(data.mainTimer).getTime() %></div>
     </p>
@@ -32,6 +33,7 @@
         hour12: data.hour12 === 'true',
         hour: '2-digit',
         minute: '2-digit',
+        timeZoneName: 'short',
       }) %> <br />
       <div id="deleteTimer"><%= new Date(data.deleteTimer).getTime() %></div>
     </p>
