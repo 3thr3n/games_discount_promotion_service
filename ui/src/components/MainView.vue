@@ -69,10 +69,11 @@
         </h2>
 
         <v-row justify="center">
-          <a href="https://vuetifyjs.com"
+           <a v-for="(framework, i) in frameworks"
+            :key="i" :href="framework.href"
             class="subheading mx-3" 
             target="_blank" >
-            Vuetify
+            {{ framework.text }}
           </a>
         </v-row>
       </v-col>
@@ -100,6 +101,20 @@
           text: 'Dockerhub',
           href: 'https://hub.docker.com/r/3thr3n/games_discount_promotions_service',
         },
+      ],
+      frameworks: [
+        {
+          text: 'Express',
+          href: 'https://expressjs.com'
+        },
+        {
+          text: 'LowDB',
+          href: 'https://www.npmjs.com/package/lowdb'
+        },
+        {
+          text: 'Vuetify',
+          href: 'https://vuetifyjs.com'
+        }
       ],
       cleanupDatetext: '',
       cleanupDate: null,
