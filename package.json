@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "(cd service && npm run dev) & (cd ui && npm run serve)",
     "build": "cd ui && npm run build && cp -r ./dist/* ../service/src/vue/",
-    "lint": "cd service && npx eslint --output-file eslint_report.json --format json service/src"
+    "lint": "(cd service && npm run lint) & (cd ui && npm run lint)"
   },
   "type": "module",
   "author": "3thr3n",
