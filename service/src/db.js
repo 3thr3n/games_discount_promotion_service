@@ -91,47 +91,55 @@ export async function deleteDB(x) {
   for (let i = x; i < games.length; i++) {
     const element = games[i]
     if (element.store === 'epic') {
-      const endDate = new Date(element.endDate)
-      if (endDate < date) {
-        log(
-            'Removed epic-game from DB: ' +
-            element.title +
-            ' -> ' +
-            new Date(element.endDate).toLocaleString(timezoneLocale, {
-              timeZone: timezone,
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour12: hour12 === 'true',
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-        )
-        toRemoveIDs.push(i)
-      }
+      try {
+        const endDate = new Date(element.endDate)
+        if (endDate < date) {
+          log(
+              'Removed epic-game from DB: ' +
+              element.title +
+              ' -> ' +
+              new Date(element.endDate).toLocaleString(timezoneLocale, {
+                timeZone: timezone,
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour12: hour12 === 'true',
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+          )
+          toRemoveIDs.push(i)
+        }
+      } catch (error) {}
     } else if (element.store === 'steam') {
-      const gameJson = await steam.fetchSteamIndivdualJson(element.id)
-      const priceOverview = gameJson.price_overview
+      try {
+        const gameJson = await steam.fetchSteamIndivdualJson(element.id)
+        const priceOverview = gameJson.price_overview
 
-      if (priceOverview.discount_percent < steamGamePercentage || priceOverview.final == priceOverview.initial) {
-        log('Removed steam-game from DB: ' + element.title + ' -> discount=' + priceOverview.discount_percent + '%')
-        toRemoveIDs.push(i)
-      }
+        if (priceOverview.discount_percent < steamGamePercentage || priceOverview.final == priceOverview.initial) {
+          log('Removed steam-game from DB: ' + element.title + ' -> discount=' + priceOverview.discount_percent + '%')
+          toRemoveIDs.push(i)
+        }
+      } catch (error) {}
     } else if (element.store === 'gog') {
-      const gameJson = await gog.fetchGogIndividualJson(element.id)
-      const originalPrice = parseInt(gameJson.basePrice)
-      const discountPrice = parseInt(gameJson.finalPrice)
+      try {
+        const gameJson = await gog.fetchGogIndividualJson(element.id)
+        const originalPrice = parseInt(gameJson.basePrice)
+        const discountPrice = parseInt(gameJson.finalPrice)
 
-      if (discountPrice == originalPrice || Math.round((originalPrice - discountPrice) / originalPrice * 100) < gogGamePercentage) {
-        log('Removed gog-game from DB: ' + element.title +
-          ' -> discount=' + Math.round((originalPrice - discountPrice) / originalPrice * 100) + '%')
-        toRemoveIDs.push(i)
-      }
+        if (discountPrice == originalPrice || Math.round((originalPrice - discountPrice) / originalPrice * 100) < gogGamePercentage) {
+          log('Removed gog-game from DB: ' + element.title +
+            ' -> discount=' + Math.round((originalPrice - discountPrice) / originalPrice * 100) + '%')
+          toRemoveIDs.push(i)
+        }
+      } catch (error) {}
     } else if (element.store === 'ubisoft') {
-      if (!await ubisoft.checkIfDiscounted(element)) {
-        log('Removed ubisoft-game from DB: ' + element.title + ' -> no discount')
-        toRemoveIDs.push(i)
-      }
+      try {
+        if (!await ubisoft.checkIfDiscounted(element)) {
+          log('Removed ubisoft-game from DB: ' + element.title + ' -> no discount')
+          toRemoveIDs.push(i)
+        }
+      } catch (error) {}
     }
     if (i > 0 && i % 50 == 0) {
       deleteAndWriteDB(toRemoveIDs)

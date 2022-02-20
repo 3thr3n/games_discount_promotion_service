@@ -2,7 +2,7 @@ import {cron, epicEnabled, gogEnabled,
   steamEnabled, ubisoftEnabled, timezone,
   timezoneLocale, hour12} from './variables.js'
 
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || 'development'
 import cors from 'cors'
 
 import path from 'path'
@@ -46,14 +46,20 @@ import {sendMessage, sendMessageToMany} from './msg.js'
 // Configure Express
 if (env === 'development') {
   // Fucking cors in development
-  console.log('ENV: ' + env);
+  console.log('ENV: ' + env)
   const allowlist = ['http://localhost:8080']
-  const corsOptionsDelegate = function (req, callback) {
-    let corsOptions;
+
+  /**
+   * Cors
+   * @param {Object} req
+   * @param {Object} callback
+   */
+  const corsOptionsDelegate = function(req, callback) {
+    let corsOptions
     if (allowlist.indexOf(req.header('Origin')) !== -1) {
-      corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+      corsOptions = {origin: true} // reflect (enable) the requested origin in the CORS response
     } else {
-      corsOptions = { origin: false } // disable CORS for this request
+      corsOptions = {origin: false} // disable CORS for this request
     }
     callback(null, corsOptions) // callback expects two parameters: error and options
   }
@@ -127,6 +133,12 @@ app.get('/api/old', async function(req, res) {
     gamesListPages,
     curPage: req.query['page'],
   })
+})
+
+app.use(function(req, res, next) {
+  res.status(404)
+
+  res.redirect('/#/ohno')
 })
 
 // #endregion

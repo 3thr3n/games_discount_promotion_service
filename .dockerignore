@@ -7,3 +7,4 @@ db.json
 Dockerfile
 docker-compose.yml
 .gitignore
+/dist

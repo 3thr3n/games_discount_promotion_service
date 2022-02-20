@@ -10,6 +10,7 @@
         "ecmaVersion": 13,
         "sourceType": "module"
     },
+    "ignorePatterns": ["src/vue/**", "./src/vue/**"],
     "rules": {
         "semi": ["error", "never"],
         "max-len": ["error", 140],
