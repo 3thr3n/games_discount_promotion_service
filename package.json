@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "(cd service && npm run dev) & (cd ui && npm run serve)",
-    "build": "cd ui && npm run build && cp -r ./dist ../service/src/vue",
+    "build": "cd ui && npm run build && cp -r ./dist/* ../service/src/vue/",
     "lint": "cd service && npx eslint --output-file eslint_report.json --format json service/src"
   },
   "type": "module",
