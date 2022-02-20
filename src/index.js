@@ -2,10 +2,14 @@ import {cron, epicEnabled, gogEnabled,
   steamEnabled, ubisoftEnabled, timezone,
   timezoneLocale, hour12} from './variables.js'
 
+const env = process.env.NODE_ENV || 'development';
+import cors from 'cors'
+
 import path from 'path'
 import {fileURLToPath} from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const __vuePath = __dirname + '/vue'
 
 import express from 'express'
 const app = express()
@@ -40,86 +44,89 @@ import {sendMessage, sendMessageToMany} from './msg.js'
 // #region Setup Express
 
 // Configure Express
-app.use(express.static(__dirname + '/public'))
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
+if (env === 'development') {
+  // Fucking cors in development
+  console.log('ENV: ' + env);
+  const allowlist = ['http://localhost:8080']
+  const corsOptionsDelegate = function (req, callback) {
+    let corsOptions;
+    if (allowlist.indexOf(req.header('Origin')) !== -1) {
+      corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+    } else {
+      corsOptions = { origin: false } // disable CORS for this request
+    }
+    callback(null, corsOptions) // callback expects two parameters: error and options
+  }
+  app.use(cors(corsOptionsDelegate))
+}
+
+app.use(express.static(__vuePath))
 
 app.get('/', function(req, res) {
-  res.render('index')
+  res.sendFile(__vuePath + '/index.html')
 })
 
-app.get('/main', function(req, res) {
-  const data = {
+app.get('/api/main', function(req, res) {
+  res.send({
     mainTimer: later.schedule(mainCron).next(1),
     deleteTimer: later.schedule(deleteCron).next(1),
     timezone,
     timezoneLocale,
     hour12,
-  }
-  res.render('content/main', {data})
+  })
 })
 
-app.get('/epic', async function(req, res) {
+app.get('/api/epicgames', async function(req, res) {
   const gamesList = await getGameData('epic', req.query['page'], req.query['sort'], req.query['asc'])
   const gamesListPages = await getGameDataPages('epic')
-  const data = {
-    title: 'Epicgames',
+  res.send({
     gamesList,
     gamesListPages,
     curPage: req.query['page'],
-  }
-  res.render('content/tables', {data})
+  })
 })
 
-app.get('/steam', async function(req, res) {
+app.get('/api/steam', async function(req, res) {
   const gamesList = await getGameData('steam', req.query['page'], req.query['sort'], req.query['asc'])
   const gamesListPages = await getGameDataPages('steam')
-  const data = {
-    title: 'Steam',
+  res.send( {
     gamesList,
     gamesListPages,
     curPage: req.query['page'],
-  }
-  res.render('content/tables', {data})
+  })
 })
 
-app.get('/gog', async function(req, res) {
+app.get('/api/gog', async function(req, res) {
   const gamesList = await getGameData('gog', req.query['page'], req.query['sort'], req.query['asc'])
   const gamesListPages = await getGameDataPages('gog')
-  const data = {
-    title: 'GOG',
+  res.send({
     gamesList,
     gamesListPages,
     curPage: req.query['page'],
-  }
-  res.render('content/tables', {data})
+  })
 })
 
-app.get('/ubisoft', async function(req, res) {
+app.get('/api/ubisoft', async function(req, res) {
   const gamesList = await getGameData('ubisoft', req.query['page'], req.query['sort'], req.query['asc'])
   const gamesListPages = await getGameDataPages('ubisoft')
-  const data = {
-    title: 'Ubisoft',
+  res.send({
     gamesList,
     gamesListPages,
     curPage: req.query['page'],
-  }
-  res.render('content/tables', {data})
+  })
 })
 
-app.get('/recently', async function(req, res) {
+app.get('/api/old', async function(req, res) {
   const gamesList = await getRecentlyDeletedGames(req.query['page'], req.query['sort'], req.query['asc'])
   const gamesListPages = await getRecentlyDeletedGamesPages()
-  const data = {
-    title: 'Expired',
+  res.send( {
     gamesList,
     timezone,
     timezoneLocale,
     hour12,
     gamesListPages,
     curPage: req.query['page'],
-  }
-  res.render('content/recently', {data})
+  })
 })
 
 // #endregion

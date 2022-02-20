@@ -240,9 +240,9 @@ export async function getGameData(store, page, sort, asc) {
           })
           break
       }
-      resolve(sortedList.splice(25*(page-1), 25))
+      resolve(sortedList.splice(30*(page-1), 30))
     } else {
-      resolve(elements.splice(25*(page-1), 25))
+      resolve(elements.splice(30*(page-1), 30))
     }
   })
 }
@@ -261,7 +261,7 @@ export async function getGameDataPages(store) {
         elements.push(element)
       }
     })
-    resolve(elements.length > 0 ? Math.ceil(elements.length / 25) : 1)
+    resolve(elements.length > 0 ? Math.ceil(elements.length / 30) : 1)
   })
 }
 
@@ -314,9 +314,9 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
           })
           break
       }
-      resolve(sortedList.splice(25*(page-1), 25))
+      resolve(sortedList.splice(30*(page-1), 30))
     } else {
-      resolve(elements.splice(25*(page-1), 25))
+      resolve(elements.splice(30*(page-1), 30))
     }
   })
 }
@@ -328,6 +328,6 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
  */
 export async function getRecentlyDeletedGamesPages() {
   return new Promise(async (resolve) => {
-    resolve(deleted.length > 0 ? Math.ceil(deleted.length / 25) : 1)
+    resolve(deleted.length > 0 ? Math.ceil(deleted.length / 30) : 1)
   })
 }

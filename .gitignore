@@ -4,3 +4,4 @@ db.json
 apps.json
 *.Identifier
 eslint_report.json
+src/vue
