@@ -200,6 +200,7 @@ export default class Steam {
       currencyDecimals: 2,
       thumbnailURL: json.header_image,
       storeURL: 'https://'+steamStoreURL+'/app/'+json.steam_appid,
+      added: new Date(),
     }
   }
 }

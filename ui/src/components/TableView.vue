@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container ref="container">
       <v-row class="text-center">
         <v-col class="mb-4">
           <h1 class="display-2 font-weight-bold mb-3">
@@ -74,6 +74,9 @@
           });
           this.data = get.data
           this.games = get.data.gamesList
+
+          this.$vuetify.goTo(0)
+          window.scrollTo(0,0);
         }
       },
       page: {
@@ -91,6 +94,9 @@
           });
           this.data = get.data
           this.games = get.data.gamesList
+
+          this.$vuetify.goTo(0)
+          window.scrollTo(0,0);
         }
       }
     },

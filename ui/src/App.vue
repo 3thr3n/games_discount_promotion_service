@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app >
+    <v-app-bar app>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
