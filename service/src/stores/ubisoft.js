@@ -126,6 +126,7 @@ export default class Ubisoft {
           currencyDecimals: 2,
           thumbnailURL: gameImage.attributes['data-mobile-src'],
           storeURL,
+          added: new Date(),
         }
         list.push(ubiGameJson)
       } catch (error) {

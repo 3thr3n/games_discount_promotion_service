@@ -105,6 +105,7 @@ export default class Epic {
         thumbnailURL,
         storeURL: epicStoreURL+productUrl+'?lang='+locale+'-'+country,
         endDate: endDates.length > 1 ? endDates : endDates[0],
+        added: new Date(),
       }
       listDbData.push(dbData)
     }

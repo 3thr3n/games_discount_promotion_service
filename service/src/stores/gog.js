@@ -90,6 +90,7 @@ export default class Gog {
       currencyDecimals: 2,
       thumbnailURL: 'https://'+gogImageURL+(regexResult[1])+'.jpg',
       storeURL: 'https://'+gogStoreURL+json.url,
+      added: new Date(),
     }
   }
 
