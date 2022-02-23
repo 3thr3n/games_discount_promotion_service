@@ -52,18 +52,12 @@ export default class Ubisoft {
             }
             resolve(mainDiv)
           } catch (error) {
-            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-            console.error('Error: ' + error)
-            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-            reject([])
+            reject(error)
           }
         })
       })
       req.on('error', (error) => {
-        console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        console.error('Error: ' + error)
-        console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        reject([])
+        reject(error)
       })
       req.end()
     })

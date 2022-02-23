@@ -363,7 +363,14 @@ async function execGog() {
  * execution logic for epic
  */
 async function execUbisoft() {
-  const fetchUbisoftHtml = await ubisoft.fetchUbisoftHtml(1)
+  let fetchUbisoftHtml = []
+  try {
+    fetchUbisoftHtml = await ubisoft.fetchUbisoftHtml(1)
+  } catch (error) {
+    console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    console.error('Error: ' + error)
+    console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  }
 
   const pendingMessages = new Map()
 

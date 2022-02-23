@@ -223,7 +223,7 @@ export async function getGameData(store, page, sort, asc) {
     switch (parseInt(sort)) {
       // Added on
       case 4:
-        sortedList = elements.sort((a,b) => {
+        sortedList = elements.sort((a, b) => {
           if (a.added < b.added) return asc ? -1 : 1
           if (a.added == b.added) return 0
           if (a.added > b.added) return asc ? 1 : -1
