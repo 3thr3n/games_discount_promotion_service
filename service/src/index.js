@@ -225,6 +225,13 @@ async function cronJob() {
   }
 }
 
+/**
+ * Runs every night at 1 am
+ */
+async function cronDeleteJob() {
+  deleteDB(0)
+}
+
 // =====================================================================
 // --------------------------------INIT---------------------------------
 // =====================================================================
@@ -262,7 +269,7 @@ async function init() {
   }
 
   later.setInterval(await cronJob, mainCron)
-  later.setInterval(await deleteDB, deleteCron)
+  later.setInterval(await cronDeleteJob, deleteCron)
 }
 
 // #endregion
