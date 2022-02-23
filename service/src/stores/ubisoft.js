@@ -52,9 +52,6 @@ export default class Ubisoft {
             }
             resolve(mainDiv)
           } catch (error) {
-            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-            console.error('Error: ' + error)
-            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             reject(error)
           }
         })
