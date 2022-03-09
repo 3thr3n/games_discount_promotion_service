@@ -36,7 +36,7 @@
               </v-list-item>
               <v-list-item>
                 <v-list-item-title v-if="game.deleted" v-html="'Deleted on: ' + new Date(game.deleted).toLocaleString(data.timezoneLocale, {timeZone: data.timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: data.hour12 === 'true', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })" />
-                <v-list-item-title v-if="game.added" v-html="'Added on: ' + new Date(game.added).toLocaleString(data.timezoneLocale, {timeZone: data.timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: data.hour12 === 'true', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })" />
+                <v-list-item-title v-else-if="game.added" v-html="'Added on: ' + new Date(game.added).toLocaleString(data.timezoneLocale, {timeZone: data.timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: data.hour12 === 'true', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })" />
                 <v-list-item-title v-if="!game.deleted && !game.added" v-html="'Added on: N/A'"/>
               </v-list-item>
               <v-list-item>

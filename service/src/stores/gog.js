@@ -25,6 +25,7 @@ export default class Gog {
         path: '/games/ajax/filtered?mediaType=game&price=discounted&page='+page,
         method: 'GET',
         headers: {'Cookie': 'gog_lc='+country+'_'+gogCurrency+'_'+timezoneLocale},
+        timeout: 3000,
       }
 
       const req = https.request(options, (res) => {
@@ -56,6 +57,9 @@ export default class Gog {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })
@@ -108,6 +112,7 @@ export default class Gog {
         port: 443,
         path: '/products/'+appid+'/prices?countryCode='+country+'&currency='+gogCurrency,
         method: 'GET',
+        timeout: 3000,
       }
 
       const req = https.request(options, (res) => {
@@ -131,6 +136,9 @@ export default class Gog {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })

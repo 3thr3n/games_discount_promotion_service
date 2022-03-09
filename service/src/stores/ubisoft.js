@@ -20,6 +20,7 @@ export default class Ubisoft {
         port: 443,
         path: '/' + locale + '/games?sz=32&format=page-element&start='+(32*(page-1)),
         method: 'GET',
+        timeout: 3000,
       }
 
       const req = https.request(options, (res) => {
@@ -58,6 +59,9 @@ export default class Ubisoft {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })
@@ -147,6 +151,7 @@ export default class Ubisoft {
         port: 443,
         path: '/' + locale + '/game?pid='+gameJson.id,
         method: 'GET',
+        timeout: 3000,
       }
 
       const req = https.request(options, (res) => {
@@ -185,6 +190,9 @@ export default class Ubisoft {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })

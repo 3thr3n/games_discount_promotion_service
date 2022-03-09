@@ -224,9 +224,12 @@ export async function getGameData(store, page, sort, asc) {
       // Added on
       case 4:
         sortedList = elements.sort((a, b) => {
-          if (a.added < b.added) return asc ? -1 : 1
-          if (a.added == b.added) return 0
-          if (a.added > b.added) return asc ? 1 : -1
+          const dateA = new Date(a.added)
+          const dateB = new Date(b.added)
+
+          if (dateA < dateB) return asc ? -1 : 1
+          if (dateA == dateB) return 0
+          if (dateA > dateB) return asc ? 1 : -1
         })
         break
       // Discount
@@ -305,24 +308,36 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
     if (sort !== undefined) {
       let sortedList
       switch (parseInt(sort)) {
-        case 3:
-          sortedList = elements.sort((a, b) => {
-            if (a.deleted < b.deleted) return asc ? -1 : 1
-            if (a.deleted == b.deleted) return 0
-            if (a.deleted > b.deleted) return asc ? 1 : -1
-          })
+        case 4:
+          const dateA = new Date(a.deleted)
+          const dateB = new Date(b.deleted)
+
+          if (dateA < dateB) return asc ? -1 : 1
+          if (dateA == dateB) return 0
+          if (dateA > dateB) return asc ? 1 : -1
           break
-        case 2:
+        // Discount
+        case 3:
           sortedList = elements.sort((a, b) => {
             if (a.discountPercent < b.discountPercent) return asc ? -1 : 1
             if (a.discountPercent == b.discountPercent) return 0
             if (a.discountPercent > b.discountPercent) return asc ? 1 : -1
           })
           break
+        // Discount price
+        case 2:
+          sortedList = elements.sort((a, b) => {
+            if (a.discountPrice < b.discountPrice) return asc ? -1 : 1
+            if (a.discountPrice == b.discountPrice) return 0
+            if (a.discountPrice > b.discountPrice) return asc ? 1 : -1
+          })
+          break
+        // Original price
         case 1:
           sortedList = elements.sort((a, b) => {
-            if (a.title < b.title) return asc ? -1 : 1
-            if (a.title > b.title) return asc ? 1 : -1
+            if (a.originalPrice < b.originalPrice) return asc ? -1 : 1
+            if (a.originalPrice == b.originalPrice) return 0
+            if (a.originalPrice > b.originalPrice) return asc ? 1 : -1
           })
           break
         case 0:
