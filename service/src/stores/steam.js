@@ -22,6 +22,7 @@ export default class Steam {
         port: 443,
         path: '/ISteamApps/GetAppList/v0002/?format=json',
         method: 'GET',
+        timeout: 3000,
       }
       const req = https.request(options, (res) => {
         let body = ''
@@ -43,6 +44,9 @@ export default class Steam {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })
@@ -89,6 +93,7 @@ export default class Steam {
         port: 443,
         path: '/api/appdetails?cc=' + locale + '&l=' + locale + '&filters=price_overview&appids=' + appids,
         method: 'GET',
+        timeout: 3000,
       }
       const req = https.request(options, (res) => {
         let body = ''
@@ -109,6 +114,9 @@ export default class Steam {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })
@@ -150,6 +158,7 @@ export default class Steam {
         port: 443,
         path: '/api/appdetails?cc=' + locale + '&l=' + locale + '&appids=' + appid,
         method: 'GET',
+        timeout: 3000,
       }
       const req = https.request(options, (res) => {
         let body = ''
@@ -175,6 +184,9 @@ export default class Steam {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })

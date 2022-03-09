@@ -22,6 +22,7 @@ export default class Epic {
         port: 443,
         path: '/freeGamesPromotions?locale=' + locale + '&country=' + country,
         method: 'GET',
+        timeout: 3000,
       }
 
       const req = https.request(options, (res) => {
@@ -45,6 +46,9 @@ export default class Epic {
       })
       req.on('error', (error) => {
         reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
       })
       req.end()
     })
@@ -77,7 +81,10 @@ export default class Epic {
       const sellerName = seller.name
       const lineOffers = price.lineOffers
       const currencyDecimals = currencyInfo.decimals
-      const productUrl = productSlug.replace('/home', '')
+      let productUrl = ''
+      if (productSlug) {
+        productUrl = productSlug.replace('/home', '')
+      }
 
       const endDates = []
       lineOffers.forEach((x) => {
