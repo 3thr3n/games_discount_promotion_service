@@ -46,7 +46,6 @@ import {sendMessage, sendMessageToMany} from './msg.js'
 // Configure Express
 if (env === 'development') {
   // Fucking cors in development
-  console.log('ENV: ' + env)
   const allowlist = ['http://localhost:8080']
 
   /**
@@ -282,28 +281,32 @@ async function init() {
  * execution logic for steam
  */
 async function execSteam() {
-  const fetchSteamJson = await steam.fetchSteamJson()
-  const processSteamJson = await steam.processSteamJson(fetchSteamJson)
+  try {
+    const fetchSteamJson = await steam.fetchSteamJson()
+    const processSteamJson = await steam.processSteamJson(fetchSteamJson)
 
-  const pendingMessages = new Map()
+    const pendingMessages = new Map()
 
-  for (let i = 0; i < processSteamJson.length; i++) {
-    const concatedAppIds = processSteamJson[i]
-    await wait(steamApiTimeout)
-    const fetchSteamCashJson = await steam.fetchSteamCashJson(concatedAppIds)
-    const processSteamCashJson = await steam.processSteamCashJson(fetchSteamCashJson)
+    for (let i = 0; i < processSteamJson.length; i++) {
+      const concatedAppIds = processSteamJson[i]
+      await wait(steamApiTimeout)
+      const fetchSteamCashJson = await steam.fetchSteamCashJson(concatedAppIds)
+      const processSteamCashJson = await steam.processSteamCashJson(fetchSteamCashJson)
 
-    for (let j = 0; j < processSteamCashJson.length; j++) {
-      const id = processSteamCashJson[j]
-      const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
-      const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
-      const info = await prepareWriteToDB(processSteamGameJson)
-      pendingMessages.set(processSteamGameJson.title, {dbData: processSteamGameJson, info})
+      for (let j = 0; j < processSteamCashJson.length; j++) {
+        const id = processSteamCashJson[j]
+        const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
+        const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
+        const info = await prepareWriteToDB(processSteamGameJson)
+        pendingMessages.set(processSteamGameJson.title, {dbData: processSteamGameJson, info})
+      }
     }
-  }
 
-  await sendingPendingMessages(pendingMessages)
-  writeToDB()
+    await sendingPendingMessages(pendingMessages)
+    writeToDB()
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // =====================================================================
@@ -314,20 +317,24 @@ async function execSteam() {
  * execution logic for epic
  */
 async function execEpic() {
-  const fetchEpicJson = await epic.fetchEpicJson()
-  const listDbData = await epic.processEpicJson(fetchEpicJson)
+  try {
+    const fetchEpicJson = await epic.fetchEpicJson()
+    const listDbData = await epic.processEpicJson(fetchEpicJson)
 
-  const pendingMessages = new Map()
+    const pendingMessages = new Map()
 
-  if (listDbData !== undefined) {
-    for (let i = 0; i < listDbData.length; i++) {
-      const dbData = listDbData[i]
-      const info = await prepareWriteToDB(dbData)
-      pendingMessages.set(dbData.title, {dbData, info})
+    if (listDbData !== undefined) {
+      for (let i = 0; i < listDbData.length; i++) {
+        const dbData = listDbData[i]
+        const info = await prepareWriteToDB(dbData)
+        pendingMessages.set(dbData.title, {dbData, info})
+      }
     }
+    await sendingPendingMessages(pendingMessages)
+    writeToDB()
+  } catch (e) {
+    console.error(e);
   }
-  await sendingPendingMessages(pendingMessages)
-  writeToDB()
 }
 
 // =====================================================================
@@ -338,21 +345,25 @@ async function execEpic() {
  * execution logic for gog
  */
 async function execGog() {
-  const fetchGogJson = await gog.fetchGogJson(1)
+  try {
+    const fetchGogJson = await gog.fetchGogJson(1)
 
-  const pendingMessages = new Map()
+    const pendingMessages = new Map()
 
-  for (let i = 0; i < fetchGogJson.length; i++) {
-    const gameData = fetchGogJson[i]
-    const processGogGameJson = await gog.processGogGameJson(gameData)
-    if (processGogGameJson !== undefined) {
-      const info = await prepareWriteToDB(processGogGameJson)
-      pendingMessages.set(processGogGameJson.title, {dbData: processGogGameJson, info})
+    for (let i = 0; i < fetchGogJson.length; i++) {
+      const gameData = fetchGogJson[i]
+      const processGogGameJson = await gog.processGogGameJson(gameData)
+      if (processGogGameJson !== undefined) {
+        const info = await prepareWriteToDB(processGogGameJson)
+        pendingMessages.set(processGogGameJson.title, {dbData: processGogGameJson, info})
+      }
     }
-  }
 
-  await sendingPendingMessages(pendingMessages)
-  writeToDB()
+    await sendingPendingMessages(pendingMessages)
+    writeToDB()
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // =====================================================================
@@ -372,25 +383,29 @@ async function execUbisoft() {
     console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   }
 
-  const pendingMessages = new Map()
+  try {
+    const pendingMessages = new Map()
 
-  for (let i = 0; i < fetchUbisoftHtml.length; i++) {
-    const gameTile = fetchUbisoftHtml[i]
-    const processUbisoftHtml = await ubisoft.processUbisoftHtml(gameTile).catch((err) => {
-      if (err.message !== 'No discount') {
-        console.error(err)
-      }
-    })
-    if (processUbisoftHtml !== undefined) {
-      for (let x = 0; x < processUbisoftHtml.length; x++) {
-        const gameJson = processUbisoftHtml[x]
-        const info = await prepareWriteToDB(gameJson)
-        pendingMessages.set(gameJson.title, {dbData: gameJson, info})
+    for (let i = 0; i < fetchUbisoftHtml.length; i++) {
+      const gameTile = fetchUbisoftHtml[i]
+      const processUbisoftHtml = await ubisoft.processUbisoftHtml(gameTile).catch((err) => {
+        if (err.message !== 'No discount') {
+          console.error(err)
+        }
+      })
+      if (processUbisoftHtml !== undefined) {
+        for (let x = 0; x < processUbisoftHtml.length; x++) {
+          const gameJson = processUbisoftHtml[x]
+          const info = await prepareWriteToDB(gameJson)
+          pendingMessages.set(gameJson.title, {dbData: gameJson, info})
+        }
       }
     }
+    await sendingPendingMessages(pendingMessages)
+    writeToDB()
+  } catch (e) {
+    console.error(e);
   }
-  await sendingPendingMessages(pendingMessages)
-  writeToDB()
 }
 
 

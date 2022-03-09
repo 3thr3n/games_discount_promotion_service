@@ -61,7 +61,7 @@ export default class Epic {
    * @return {Promise<JSON[]>} prepared JSON for Database
    */
   processEpicJson(gameData) {
-    log('EPIC * Running fetchEpicJson')
+    log('EPIC * Running processEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
       const {title, id, isCodeRedemptionOnly, seller, price, keyImages, productSlug} = gameData[i]
