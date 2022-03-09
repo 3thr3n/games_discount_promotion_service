@@ -305,7 +305,7 @@ async function execSteam() {
     await sendingPendingMessages(pendingMessages)
     writeToDB()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -333,7 +333,7 @@ async function execEpic() {
     await sendingPendingMessages(pendingMessages)
     writeToDB()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -362,7 +362,7 @@ async function execGog() {
     await sendingPendingMessages(pendingMessages)
     writeToDB()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -404,7 +404,7 @@ async function execUbisoft() {
     await sendingPendingMessages(pendingMessages)
     writeToDB()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }
 
