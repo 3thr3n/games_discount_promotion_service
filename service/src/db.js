@@ -309,12 +309,14 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
       let sortedList
       switch (parseInt(sort)) {
         case 4:
-          const dateA = new Date(a.deleted)
-          const dateB = new Date(b.deleted)
+          sortedList = elements.sort((a, b) => {
+            const dateA = new Date(a.deleted)
+            const dateB = new Date(b.deleted)
 
-          if (dateA < dateB) return asc ? -1 : 1
-          if (dateA == dateB) return 0
-          if (dateA > dateB) return asc ? 1 : -1
+            if (dateA < dateB) return asc ? -1 : 1
+            if (dateA == dateB) return 0
+            if (dateA > dateB) return asc ? 1 : -1
+          })
           break
         // Discount
         case 3:
