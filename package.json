@@ -1,6 +1,6 @@
 {
   "name": "games_discount_promotions_service",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "",
   "scripts": {
     "dev": "(cd service && npm run dev) & (cd ui && npm run serve)",
