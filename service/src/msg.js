@@ -65,7 +65,7 @@ export async function sendMessage(dbData, changes) {
  * @param {String} store which store
  * @param {Integer} items how many messages
  */
-export async function sendMessageToMany(store, items) {
+export async function sendMessageTooMany(store, items) {
   const message =
   '========================================================================\n' +
   '  More than 30(' + items + ') deals at once at ' + store + '\n' +

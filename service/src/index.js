@@ -41,7 +41,7 @@ let sendingMessages = false
 import {writeToDB, prepareWriteToDB,
   deleteDB, getGameData, getRecentlyDeletedGames,
   getGameDataPages, getRecentlyDeletedGamesPages} from './db.js'
-import {sendMessage, sendMessageToMany} from './msg.js'
+import {sendMessage, sendMessageTooMany} from './msg.js'
 
 // #region Setup Express
 
@@ -194,7 +194,7 @@ async function sendingPendingMessages(pendingMessages) {
         await wait(3250)
       }
     }
-    sendMessageToMany(store, pendingChanges.length)
+    sendMessageTooMany(store, pendingChanges.length)
   }
   sendingMessages = false
 }
@@ -299,7 +299,7 @@ async function execSteam() {
         try {
           const id = processSteamCashJson[j]
           const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
-          if (fetchSteamIndivdualJson.length > 0) {
+          if (fetchSteamIndivdualJson) {
             const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
             const info = await prepareWriteToDB(processSteamGameJson)
             pendingMessages.set(processSteamGameJson.title, {dbData: processSteamGameJson, info})
@@ -309,6 +309,7 @@ async function execSteam() {
           log('Error: ' + error)
           log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         }
+        writeToDB()
       }
     } catch (error) {
       log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
