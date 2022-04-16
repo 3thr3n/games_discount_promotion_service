@@ -173,7 +173,9 @@ export default class Steam {
             const gameSuccess = game.success
             if (gameSuccess) {
               resolve(game.data)
+              return
             }
+            resolve({})
           } catch (error) {
             console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             console.error('Error: ' + error)
