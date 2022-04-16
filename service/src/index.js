@@ -11,6 +11,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const __vuePath = __dirname + '/vue'
 
+import log from './log.js'
+
 import express from 'express'
 const app = express()
 
@@ -281,32 +283,42 @@ async function init() {
  * execution logic for steam
  */
 async function execSteam() {
-  try {
-    const fetchSteamJson = await steam.fetchSteamJson()
-    const processSteamJson = await steam.processSteamJson(fetchSteamJson)
+  const fetchSteamJson = await steam.fetchSteamJson()
+  const processSteamJson = await steam.processSteamJson(fetchSteamJson)
 
-    const pendingMessages = new Map()
+  const pendingMessages = new Map()
 
-    for (let i = 0; i < processSteamJson.length; i++) {
+  for (let i = 0; i < processSteamJson.length; i++) {
+    try {
       const concatedAppIds = processSteamJson[i]
       await wait(steamApiTimeout)
       const fetchSteamCashJson = await steam.fetchSteamCashJson(concatedAppIds)
       const processSteamCashJson = await steam.processSteamCashJson(fetchSteamCashJson)
 
       for (let j = 0; j < processSteamCashJson.length; j++) {
-        const id = processSteamCashJson[j]
-        const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
-        const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
-        const info = await prepareWriteToDB(processSteamGameJson)
-        pendingMessages.set(processSteamGameJson.title, {dbData: processSteamGameJson, info})
+        try {
+          const id = processSteamCashJson[j]
+          const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
+          if (fetchSteamIndivdualJson.length > 0) {
+            const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
+            const info = await prepareWriteToDB(processSteamGameJson)
+            pendingMessages.set(processSteamGameJson.title, {dbData: processSteamGameJson, info})
+          }
+        } catch (error) {
+          log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+          log('Error: ' + error)
+          log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        }
       }
+    } catch (error) {
+      log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      log('Error: ' + error)
+      log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     }
-
-    await sendingPendingMessages(pendingMessages)
-    writeToDB()
-  } catch (e) {
-    console.error(e)
   }
+
+  await sendingPendingMessages(pendingMessages)
+  writeToDB()
 }
 
 // =====================================================================
@@ -332,8 +344,10 @@ async function execEpic() {
     }
     await sendingPendingMessages(pendingMessages)
     writeToDB()
-  } catch (e) {
-    console.error(e)
+  } catch (error) {
+    log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    log('Error: ' + error)
+    log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   }
 }
 
@@ -361,8 +375,10 @@ async function execGog() {
 
     await sendingPendingMessages(pendingMessages)
     writeToDB()
-  } catch (e) {
-    console.error(e)
+  } catch (error) {
+    log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    log('Error: ' + error)
+    log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   }
 }
 
@@ -404,7 +420,9 @@ async function execUbisoft() {
     await sendingPendingMessages(pendingMessages)
     writeToDB()
   } catch (e) {
-    console.error(e)
+    log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    log('Error: ' + error)
+    log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   }
 }
 

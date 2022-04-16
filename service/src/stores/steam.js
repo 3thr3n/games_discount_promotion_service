@@ -116,7 +116,7 @@ export default class Steam {
         reject(error)
       })
       req.on('timeout', (e) => {
-        reject(e)
+        resolve([])
       })
       req.end()
     })
@@ -186,7 +186,7 @@ export default class Steam {
         reject(error)
       })
       req.on('timeout', (e) => {
-        reject(e)
+        resolve({})
       })
       req.end()
     })

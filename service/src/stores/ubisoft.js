@@ -207,17 +207,21 @@ export default class Ubisoft {
   checkIfDiscounted(gameJson) {
     return new Promise(async (resolve, reject) => {
       log('UBI * Running checkIfDiscounted')
-      const gameHtml = await this.fetchUbisoftSingleGame(gameJson)
-      if (gameHtml !== null) {
-        const priceItem = gameHtml.querySelector('span.price-item')
+      try {
+        const gameHtml = await this.fetchUbisoftSingleGame(gameJson)
+        if (gameHtml !== null) {
+          const priceItem = gameHtml.querySelector('span.price-item')
 
-        if (priceItem === null) {
-          resolve(false)
-        } else {
-          resolve(true)
+          if (priceItem === null) {
+            resolve(false)
+          } else {
+            resolve(true)
+          }
         }
+        resolve(false)
+      } catch (error) {
+        resolve(false)
       }
-      resolve(false)
     })
   }
 }
