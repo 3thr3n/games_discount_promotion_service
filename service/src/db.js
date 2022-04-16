@@ -308,7 +308,7 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
     if (sort !== undefined) {
       let sortedList
       switch (parseInt(sort)) {
-        case 4:
+        case 5:
           sortedList = elements.sort((a, b) => {
             const dateA = new Date(a.deleted)
             const dateB = new Date(b.deleted)
@@ -324,14 +324,6 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
             if (a.discountPercent < b.discountPercent) return asc ? -1 : 1
             if (a.discountPercent == b.discountPercent) return 0
             if (a.discountPercent > b.discountPercent) return asc ? 1 : -1
-          })
-          break
-        // Discount price
-        case 2:
-          sortedList = elements.sort((a, b) => {
-            if (a.discountPrice < b.discountPrice) return asc ? -1 : 1
-            if (a.discountPrice == b.discountPrice) return 0
-            if (a.discountPrice > b.discountPrice) return asc ? 1 : -1
           })
           break
         // Original price

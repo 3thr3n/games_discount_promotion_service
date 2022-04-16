@@ -84,15 +84,18 @@
           this.data = fetchedData
           this.games = fetchedData.gamesList
 
+          if (value === 'Old') {
+            this.sortList = ['Title', 'Original Price', 'Discount', 'Deleted on']
+          } else {
+            this.sortList = ['Title', 'Original price', 'Discount price', 'Discount', 'Added on']
+          }
+
           this.$vuetify.goTo(0)
           window.scrollTo(0,0);
         }
       },
       page: {
         async handler(value) {
-          this.asc = true
-          this.sort = 'Title'
-
           const fetchedData = await fetchData(this.shop, value, this.getSortId(), this.asc)
 
           this.data = fetchedData
@@ -134,7 +137,7 @@
       games: [],
       asc: true,
       sort: 'Title',
-      sortList: ['Title', 'Original price', 'Discount price', 'Discount', 'Added on'],
+      sortList: [],
     }),
     methods: {
       getSortId() {
@@ -142,6 +145,7 @@
         if (this.sort === 'Discount price') return 2
         if (this.sort === 'Discount') return 3
         if (this.sort === 'Added on') return 4
+        if (this.sort === 'Deleted on') return 5
         return 0
       },
       changeOrder() {
