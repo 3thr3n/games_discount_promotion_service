@@ -71,6 +71,17 @@
     <v-main dark>
       <component :is="currentView" :myData="propData" />
     </v-main>
+
+    <v-footer padless>
+    <v-col>
+        <div class="text-left text-caption">
+          {{ new Date().getFullYear() }} — <strong><a style="text-decoration: none; color: grey" href="https://github.com/3thr3n">&copy;3thr3n</a></strong>
+        </div>
+    </v-col>
+    <v-col>
+      <div class="text-right text-caption" >Powered by Vuetify </div>
+    </v-col>
+  </v-footer>
   </v-app>
 </template>
 
