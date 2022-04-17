@@ -21,30 +21,7 @@
         </v-col>
         <v-spacer class="hidden-sm-and-down" />
       </v-row>
-      <v-row>
-        <v-card width="390" class="mx-auto mt-5" v-for="game in games" :key="game.id" :href="game.storeURL" target="_blank">
-            <v-list outlined height="100%">
-              <v-img :src="game.thumbnailURL" contain height="250px" dark />
-              <v-card-title v-text="game.title"/>
-               <v-list-item>
-                 <v-list-item-content>
-                    <v-list-item-title class="text-h6">Price</v-list-item-title>
-                    <v-list-item-title>Original price: {{ (game.originalPrice / Math.pow(10, game.currencyDecimals)).toFixed(2) + " " + game.currencyCode }} </v-list-item-title>
-                    <v-list-item-title v-if="!game.deleted">Discount price: {{ (game.discountPrice / Math.pow(10, game.currencyDecimals)).toFixed(2) + " " + game.currencyCode }} </v-list-item-title>
-                    <v-list-item-title><span v-if="game.deleted">Previous </span>Discount: ~{{ game.discountPercent }}% ({{ (game.discount / Math.pow(10, game.currencyDecimals)).toFixed(2) + " " + game.currencyCode }})</v-list-item-title>
-                 </v-list-item-content>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title v-if="game.deleted" v-html="'Deleted on: ' + new Date(game.deleted).toLocaleString(data.timezoneLocale, {timeZone: data.timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: data.hour12 === 'true', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })" />
-                <v-list-item-title v-else-if="game.added" v-html="'Added on: ' + new Date(game.added).toLocaleString(data.timezoneLocale, {timeZone: data.timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour12: data.hour12 === 'true', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })" />
-                <v-list-item-title v-if="!game.deleted && !game.added" v-html="'Added on: N/A'"/>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-subtitle v-html="game.sellerName" />
-              </v-list-item>
-            </v-list>
-        </v-card>
-      </v-row>
+      <game-card-component :data="data" :games="games"/>
       <v-row justify="center">
         <v-pagination v-if="data"
           v-model="page"
@@ -58,9 +35,13 @@
 
 <script>
   import {AjaxClient2} from 'ajax-client'
+  import GameCardComponent from './GameCardComponent.vue';
+  import {backendPath} from '../variables.js'
+
   const client = new AjaxClient2();
 
   export default {
+    components: { GameCardComponent },
     name: 'TableView',
     props: [
       'myData'
@@ -156,7 +137,7 @@
 
 async function fetchData(shop, page, sort, asc) {
   const get = await client.get({
-    url: '/api/'+shop.toLowerCase()+'?page='+page+'&sort='+sort+'&asc='+asc,
+    url: backendPath + 'api/'+shop.toLowerCase()+'?page='+page+'&sort='+sort+'&asc='+asc,
     dataType: 'json',
     contentType: 'application/json',
     headers: {

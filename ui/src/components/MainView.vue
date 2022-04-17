@@ -84,6 +84,8 @@
 <script>
   import {AjaxClient2} from 'ajax-client'
   const client = new AjaxClient2();
+  import {backendPath} from '../variables.js'
+
 
   export default {
     name: 'MainView',
@@ -151,7 +153,7 @@
     },
     created: async function() {
       const get = await client.get({
-        url: '/api/main',
+        url: backendPath + 'api/main',
         dataType: 'json',
         contentType: 'application/json',
         headers: {

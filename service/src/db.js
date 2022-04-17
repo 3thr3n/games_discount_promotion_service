@@ -79,7 +79,7 @@ async function checkDB() {
  * - epic: endDate is older than today
  * - steam: discount is under the threshold or no discount is found for the game
  *
- * @param {int} x position of pointer (default 0)
+ * @param {Number} x position of pointer (default 0)
  */
 export async function deleteDB(x) {
   log('* Running deleteDB')
@@ -196,9 +196,9 @@ function deleteOverThreshold() {
  * Gets from the database all games from one store
  *
  * @param {String} store
- * @param {int} page
- * @param {int} sort
- * @param {boolean} asc
+ * @param {Number} page
+ * @param {Number} sort
+ * @param {Boolean} asc
  * @return {JSON[]} a array of games
  */
 export async function getGameData(store, page, sort, asc) {
@@ -273,7 +273,7 @@ export async function getGameData(store, page, sort, asc) {
  * Get's elements for the store and checks how many pages are needed
  *
  * @param {String} store
- * @return {int} count pages
+ * @return {Number} count pages
  */
 export async function getGameDataPages(store) {
   return new Promise(async (resolve) => {
@@ -290,9 +290,9 @@ export async function getGameDataPages(store) {
 /**
  * Gets from the database all games which are recently deleted
  *
- * @param {int} page
- * @param {int} sort
- * @param {boolean} asc
+ * @param {Number} page
+ * @param {Number} sort
+ * @param {Boolean} asc
  * @return {JSON[]} a array of recently deleted Games
  */
 export async function getRecentlyDeletedGames(page, sort, asc) {
@@ -352,10 +352,26 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
 /**
  * Get's elements for the deleted games and checks how many pages are needed
  *
- * @return {int} count pages
+ * @return {Number} count pages
  */
 export async function getRecentlyDeletedGamesPages() {
   return new Promise(async (resolve) => {
     resolve(deleted.length > 0 ? Math.ceil(deleted.length / 30) : 1)
+  })
+}
+
+/**
+ *
+ * @param {String} query
+ * @param {Number} page
+ * @return {JSON[]}
+ */
+export async function getSearchData(query, page) {
+  return new Promise(async (resolve) => {
+    const foundGames = {
+      ...games.filter((x) => x.title.toLowerCase().includes(query)),
+      ...deleted.filter((x) => x.title.toLowerCase().includes(query)),
+    }
+    resolve(foundGames)
   })
 }

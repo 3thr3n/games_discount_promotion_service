@@ -1,5 +1,15 @@
 <template>
   <v-app>
+    <v-overlay :value="searchOverlay">
+      <v-container ref="container">
+        <v-col>
+          <game-card-search-component :games="gameList" />
+        </v-col>
+        <v-col class="text-center">
+          <v-btn @click="searchOverlay = false; search = ''">Close</v-btn>
+        </v-col>
+      </v-container>
+    </v-overlay>
     <v-app-bar app>
       <div class="d-flex align-center">
         <v-img
@@ -20,6 +30,18 @@
         <v-btn class="mx-4" depressed @click="onChangeShop('recently')">Old discounts</v-btn>
       </div>
       <v-spacer />
+      <div>
+        <v-text-field
+          clearable
+          dense
+          single-line
+          class="mt-4 mx-10"
+          v-model="search"
+          hint="At least 4 characters"
+          label="Search"
+          @change="onChange"
+        ></v-text-field>
+      </div>
       <div>
         <v-tooltip v-if="!$vuetify.theme.dark" bottom>
           <template v-slot:activator="{ on }">
@@ -89,6 +111,12 @@
   import TableView from './components/TableView';
   import MainView from './components/MainView';
   import NotFound from './components/NotFound';
+  import GameCardSearchComponent from './components/GameCardSearchComponent.vue';
+
+  import {AjaxClient2} from 'ajax-client'
+  const client = new AjaxClient2();
+
+  import {backendPath} from './variables.js'
 
   const routes = [
     {
@@ -134,11 +162,16 @@
     components: {
       TableView,
       MainView,
-      NotFound
+      NotFound,
+      GameCardSearchComponent,
     },
 
     data: () => ({
       currentPath: window.location.hash,
+      search: '',
+      searchOverlay: false,
+      zIndex: 10,
+      gameList: {},
 
       propData: {},
     }),
@@ -169,6 +202,27 @@
       },
       darkMode() {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      },
+      async onChange(x) {
+        if (x === null || x.length <= 3) {
+          return
+        }
+        const get = await client.get({
+          url: backendPath + 'api/search?q='+x,
+          dataType: 'json',
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+          },
+          success: function(data) {
+            return data
+          }
+        });
+        if (get.data.gameList) {
+          this.gameList = get.data.gameList
+          this.searchOverlay = true
+          console.log(get.data);
+        }
       }
     }
   };
