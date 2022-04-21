@@ -35,10 +35,10 @@
 
 <script>
   import {AjaxClient2} from 'ajax-client'
+  const client = new AjaxClient2();
+
   import GameCardComponent from './GameCardComponent.vue';
   import {backendPath} from '../variables.js'
-
-  const client = new AjaxClient2();
 
   export default {
     components: { GameCardComponent },

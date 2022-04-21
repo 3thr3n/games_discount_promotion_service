@@ -161,9 +161,20 @@ app.get('/api/search', async function(req, res) {
     res.send({success: false})
     return
   }
+
   const gameList = await getSearchData(req.query['q'], req.query['page'])
+  const keys = Object.keys(gameList)
+  const shopList = {}
+  for (const key of keys) {
+    const game = gameList[key]
+    if (!shopList[game.store]) {
+      shopList[game.store] = []
+    }
+    shopList[game.store].push(game)
+  }
+
   res.send({
-    gameList,
+    gameList: shopList,
     curPage: req.query['page'],
   })
 })

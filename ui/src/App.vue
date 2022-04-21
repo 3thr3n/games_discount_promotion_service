@@ -1,15 +1,5 @@
 <template>
   <v-app>
-    <v-overlay :value="searchOverlay">
-      <v-container ref="container">
-        <v-col>
-          <game-card-search-component :games="gameList" />
-        </v-col>
-        <v-col class="text-center">
-          <v-btn @click="searchOverlay = false; search = ''">Close</v-btn>
-        </v-col>
-      </v-container>
-    </v-overlay>
     <v-app-bar app>
       <div class="d-flex align-center">
         <v-img
@@ -39,7 +29,8 @@
           v-model="search"
           hint="At least 4 characters"
           label="Search"
-          @change="onChange"
+          @change="value => onChangeShop('search', value)"
+          @click:clear="onChangeShop('')"
         ></v-text-field>
       </div>
       <div>
@@ -110,13 +101,9 @@
 <script>
   import TableView from './components/TableView';
   import MainView from './components/MainView';
+  import SearchView from './components/SearchView';
   import NotFound from './components/NotFound';
   import GameCardSearchComponent from './components/GameCardSearchComponent.vue';
-
-  import {AjaxClient2} from 'ajax-client'
-  const client = new AjaxClient2();
-
-  import {backendPath} from './variables.js'
 
   const routes = [
     {
@@ -149,6 +136,11 @@
       component: TableView,
       props: { shop: 'Old'}
     },
+    {
+      path: '/search',
+      component: SearchView,
+      props: { }
+    },
      {
       path: '/ohno',
       component: NotFound,
@@ -169,8 +161,6 @@
     data: () => ({
       currentPath: window.location.hash,
       search: '',
-      searchOverlay: false,
-      zIndex: 10,
       gameList: {},
 
       propData: {},
@@ -191,7 +181,16 @@
         this.onChangeShop('')
     },
     methods: {
-      onChangeShop(shop) {
+      onChangeShop(shop, value) {
+        if (shop === 'search') {
+          if (!value || value === null || value.length <= 3) {
+            if (this.currentPath === '#/search') {
+              this.onChangeShop('')
+            }
+            return
+          }
+          this.propData = {value}
+        }
         const urlPath = '#/'+shop
 
         const route = getRoute(urlPath)
@@ -203,27 +202,6 @@
       darkMode() {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
       },
-      async onChange(x) {
-        if (x === null || x.length <= 3) {
-          return
-        }
-        const get = await client.get({
-          url: backendPath + 'api/search?q='+x,
-          dataType: 'json',
-          contentType: 'application/json',
-          headers: {
-            'Accept': 'application/json',
-          },
-          success: function(data) {
-            return data
-          }
-        });
-        if (get.data.gameList) {
-          this.gameList = get.data.gameList
-          this.searchOverlay = true
-          console.log(get.data);
-        }
-      }
     }
   };
 
