@@ -1,15 +1,26 @@
 <template>
-  <v-container ref="container">
-    <v-row v-for="(game, i) in gameList" :key="i" class="text-center">
-      <v-col />
-      <v-col class="mb-4">
-        <v-container>
-          <game-card-search-component :games="game" />
-        </v-container>
-      </v-col>
-      <v-col />
-    </v-row>
-  </v-container>
+  <div>
+    <v-container ref="container" v-if="keys > 0">
+      <v-row  v-for="(game, i) in gameList" :key="i" class="text-center">
+        <v-col />
+        <v-col class="mb-4">
+          <v-container>
+            <game-card-search-component :games="game" />
+          </v-container>
+        </v-col>
+        <v-col />
+      </v-row>
+    </v-container>
+    <v-container v-if="keys == 0">
+      <v-row class="text-center">
+        <v-col />
+        <v-col class="mb-4">
+          <span>No data found</span>
+        </v-col>
+        <v-col />
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -32,7 +43,8 @@
     },
 
     data: ()=> ({
-      gameList: {}
+      gameList: {},
+      keys: 0
     }),
 
     created: function() {
@@ -58,7 +70,9 @@
               return data
             }
           });
+
           if (get.data.gameList) {
+            this.keys = Object.keys(get.data.gameList).length
             this.gameList = get.data.gameList
           }
       }

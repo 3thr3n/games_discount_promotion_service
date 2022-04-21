@@ -182,6 +182,8 @@
     },
     methods: {
       onChangeShop(shop, value) {
+        const urlPath = '#/'+shop
+        
         if (shop === 'search') {
           if (!value || value === null || value.length <= 3) {
             if (this.currentPath === '#/search') {
@@ -190,11 +192,10 @@
             return
           }
           this.propData = {value}
+        } else {
+          const route = getRoute(urlPath)
+          this.propData = (route ? route.props : {})
         }
-        const urlPath = '#/'+shop
-
-        const route = getRoute(urlPath)
-        this.propData = (route ? route.props : {})
 
         window.location.hash = urlPath
         this.currentPath = urlPath
