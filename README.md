@@ -14,7 +14,7 @@ It will find any discount on the shop-page. (Demos are excluded)
     Desc: Like Steam it takes a while, because of request limits, but the Gog-API is better structured then the Steam-API  
     Execution Time: ca. 5 min
   - **Ubisoft**:  
-    Desc: Gets all Games and filters the discounts. These is not done by API, its HTML-Scraping
+    Desc: Gets all Games and filters the discounts. These is not done by API, its HTML-Scraping  
     Execution Time: ca. 1-3 min
 
 Default is to write the discount promotions only into the console, but if an `Telegram-Bot-Token` and `ChatID` are supplied it will also send these per telegram to the chatid.  
@@ -29,7 +29,7 @@ The other shops doesn't provide an enddate, so all games which have discounts ar
 ### Creating from scratch
  - Copy the `.env_template` and rename it to `.env` and edit it to your needs
  - Run `npm install`
- - Start these in dev-mode run `npm run dev`
+ - To start in dev-mode, run `npm run dev`
  
 To build the docker-image use `docker-compose build`
 

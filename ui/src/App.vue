@@ -21,6 +21,19 @@
       </div>
       <v-spacer />
       <div>
+        <v-text-field
+          clearable
+          dense
+          single-line
+          class="mt-4 mx-10"
+          v-model="search"
+          hint="At least 4 characters"
+          label="Search"
+          @change="value => onChangeShop('search', value)"
+          @click:clear="onChangeShop('')"
+        ></v-text-field>
+      </div>
+      <div>
         <v-tooltip v-if="!$vuetify.theme.dark" bottom>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" small fab @click="darkMode">
@@ -88,7 +101,9 @@
 <script>
   import TableView from './components/TableView';
   import MainView from './components/MainView';
+  import SearchView from './components/SearchView';
   import NotFound from './components/NotFound';
+  import GameCardSearchComponent from './components/GameCardSearchComponent.vue';
 
   const routes = [
     {
@@ -121,6 +136,11 @@
       component: TableView,
       props: { shop: 'Old'}
     },
+    {
+      path: '/search',
+      component: SearchView,
+      props: { }
+    },
      {
       path: '/ohno',
       component: NotFound,
@@ -134,11 +154,14 @@
     components: {
       TableView,
       MainView,
-      NotFound
+      NotFound,
+      GameCardSearchComponent,
     },
 
     data: () => ({
       currentPath: window.location.hash,
+      search: '',
+      gameList: {},
 
       propData: {},
     }),
@@ -158,7 +181,16 @@
         this.onChangeShop('')
     },
     methods: {
-      onChangeShop(shop) {
+      onChangeShop(shop, value) {
+        if (shop === 'search') {
+          if (!value || value === null || value.length <= 3) {
+            if (this.currentPath === '#/search') {
+              this.onChangeShop('')
+            }
+            return
+          }
+          this.propData = {value}
+        }
         const urlPath = '#/'+shop
 
         const route = getRoute(urlPath)
@@ -169,7 +201,7 @@
       },
       darkMode() {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
-      }
+      },
     }
   };
 

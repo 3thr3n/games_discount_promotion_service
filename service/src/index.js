@@ -4,6 +4,8 @@ import {cron, epicEnabled, gogEnabled,
 
 const env = process.env.NODE_ENV || 'development'
 import cors from 'cors'
+import compression from 'compression'
+import helmet from 'helmet'
 
 import path from 'path'
 import {fileURLToPath} from 'url'
@@ -40,7 +42,8 @@ let sendingMessages = false
 // Initailize Database
 import {writeToDB, prepareWriteToDB,
   deleteDB, getGameData, getRecentlyDeletedGames,
-  getGameDataPages, getRecentlyDeletedGamesPages} from './db.js'
+  getGameDataPages, getRecentlyDeletedGamesPages,
+  getSearchData} from './db.js'
 import {sendMessage, sendMessageTooMany} from './msg.js'
 
 // #region Setup Express
@@ -65,7 +68,23 @@ if (env === 'development') {
     callback(null, corsOptions) // callback expects two parameters: error and options
   }
   app.use(cors(corsOptionsDelegate))
+} else {
+  app.use(cors())
+  app.use(compression())
+  app.use(helmet.crossOriginOpenerPolicy())
+  app.use(helmet.dnsPrefetchControl())
+  app.use(helmet.expectCt())
+  app.use(helmet.frameguard())
+  app.use(helmet.hidePoweredBy())
+  app.use(helmet.hsts())
+  app.use(helmet.ieNoOpen())
+  app.use(helmet.noSniff())
+  app.use(helmet.originAgentCluster())
+  app.use(helmet.permittedCrossDomainPolicies())
+  app.use(helmet.referrerPolicy())
+  app.use(helmet.xssFilter())
 }
+
 
 app.use(express.static(__vuePath))
 
@@ -132,6 +151,30 @@ app.get('/api/old', async function(req, res) {
     timezoneLocale,
     hour12,
     gamesListPages,
+    curPage: req.query['page'],
+  })
+})
+
+app.get('/api/search', async function(req, res) {
+  const query = req.query['q']
+  if (query && query.length <= 3) {
+    res.send({success: false})
+    return
+  }
+
+  const gameList = await getSearchData(req.query['q'], req.query['page'])
+  const keys = Object.keys(gameList)
+  const shopList = {}
+  for (const key of keys) {
+    const game = gameList[key]
+    if (!shopList[game.store]) {
+      shopList[game.store] = []
+    }
+    shopList[game.store].push(game)
+  }
+
+  res.send({
+    gameList: shopList,
     curPage: req.query['page'],
   })
 })
