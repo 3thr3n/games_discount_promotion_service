@@ -1,23 +1,22 @@
-import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage, expireThreshold} from './variables.js'
-import log from './log.js'
+import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage, expireThreshold} from '../variables.js'
+import log from '../log.js'
 
 import {Low, JSONFile} from 'lowdb'
 
-import Steam from './stores/steam.js'
+import Steam from '../stores/steam.js'
 const steam = new Steam()
 
-import Gog from './stores/gog.js'
+import Gog from '../stores/gog.js'
 const gog = new Gog()
 
-import Ubisoft from './stores/ubisoft.js'
+import Ubisoft from '../stores/ubisoft.js'
 const ubisoft = new Ubisoft()
 
 const filePath = './db/db.json'
 const adapter = new JSONFile(filePath)
 const db = new Low(adapter)
 
-await checkDB()
-const {games, deleted} = db.data
+let {games, deleted} = []
 
 /**
  * Writes the specified JSON in database (only in memory)
@@ -61,7 +60,7 @@ export async function writeToDB() {
 /**
  * Checks if the db is readable and setup
  */
-async function checkDB() {
+export async function checkDB() {
   log('* Running checkDB')
   await db.read()
   db.data ||= {games: [], deleted: []}
@@ -72,6 +71,9 @@ async function checkDB() {
       deleted: [],
     })
   }
+
+  games = db.data.games
+  deleted = db.data.deleted
 }
 
 /**
@@ -88,6 +90,7 @@ export async function deleteDB(x) {
 
   const date = new Date()
   const toRemoveIDs = []
+
   for (let i = x; i < games.length; i++) {
     const element = games[i]
     if (element.store === 'epic') {
@@ -177,7 +180,7 @@ function deleteAndWriteDB(toRemoveIDs) {
 /**
  * Removes all games from schema `deleted` which are over the specified threshold
  */
-function deleteOverThreshold() {
+async function deleteOverThreshold() {
   const data = deleted.filter((element) => {
     const deletionDate = new Date(element.deleted)
     const thresholdDate = new Date()
@@ -366,7 +369,7 @@ export async function getRecentlyDeletedGamesPages() {
  * @param {Number} page
  * @return {JSON[]}
  */
-export async function getSearchData(query, page) {
+export async function getSearchData(query) {
   return new Promise(async (resolve) => {
     const foundGames = {
       ...games.filter((x) => x.title.toLowerCase().includes(query)),

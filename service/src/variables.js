@@ -37,3 +37,11 @@ export const ubisoftGamePrice = process.env.UBISOFT_GAME_PRICE || defaults.ubiso
 export const ubisoftGamePercentage = process.env.UBISOFT_GAME_PERCENTAGE || defaults.ubisoft_game_percentage
 
 export const expireThreshold = process.env.EXPIRE_THRESHOLD || defaults.expire_threshold
+
+export const mongodbEnabled = process.env.MONGO_ENABLED === 'true' || false
+
+const mongodbHost = process.env.MONGO_HOST || 'localhost'
+const mongodbPort = process.env.MONGO_PORT || 27017
+const mongodbUser = process.env.MONGO_USER || 'root'
+const mongodbPass = process.env.MONGO_PASS || 'mongodb'
+export const mongodbUrl = 'mongodb://'+mongodbUser+':'+mongodbPass+'@'+mongodbHost+':'+mongodbPort+''
