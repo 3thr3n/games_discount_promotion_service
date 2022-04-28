@@ -98,11 +98,11 @@
   </v-app>
 </template>
 
-<script>
-  import TableView from './components/TableView';
-  import MainView from './components/MainView';
-  import SearchView from './components/SearchView';
-  import NotFound from './components/NotFound';
+<script setup>
+  import TableView from './components/TableView.vue';
+  import MainView from './components/MainView.vue';
+  import SearchView from './components/SearchView.vue';
+  import NotFound from './components/NotFound.vue';
   import GameCardSearchComponent from './components/GameCardSearchComponent.vue';
 
   const routes = [
