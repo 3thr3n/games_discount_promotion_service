@@ -2,11 +2,12 @@ import {timezoneLocale, timezone, hour12} from './variables.js'
 
 // Telegram-BOT
 import TelegramBot from 'node-telegram-bot-api'
+import log from './log.js'
 const token = process.env.TELEGRAM_BOT_TOKEN
 const chatID = process.env.TELEGRAM_CHATID
 let bot
 const telegram = (token !== undefined && token.length > 0) && (chatID !== undefined && chatID != 0)
-console.log('telegram', telegram)
+log('telegram: ' + telegram)
 if (telegram) {
   bot = new TelegramBot(token, {polling: false})
 }

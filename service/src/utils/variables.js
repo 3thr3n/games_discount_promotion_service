@@ -48,5 +48,5 @@ export const mongodbUrl = 'mongodb://'+mongodbUser+':'+mongodbPass+'@'+mongodbHo
 
 export const gamesPerPage = defaults.games_per_page
 
-export const debugSkipDelete = process.env.DEBUG_SKIP_DELETE ==='true' || true
-export const debugSkipStores = process.env.DEBUG_SKIP_STORES ==='true' || false
+export const debugSkipDelete = process.env.DEBUG_SKIP_DELETE === 'true' || false
+export const debugSkipStores = process.env.DEBUG_SKIP_STORES === 'true' || false

@@ -13,7 +13,7 @@ const gog = new Gog()
 import Ubisoft from '../stores/ubisoft.js'
 const ubisoft = new Ubisoft()
 
-const filePath = '../db/db.json'
+const filePath = './db/db.json'
 const adapter = new JSONFile(filePath)
 const db = new Low(adapter)
 
