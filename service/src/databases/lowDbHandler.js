@@ -1,5 +1,6 @@
-import {steamGamePercentage, hour12, timezoneLocale, timezone, gogGamePercentage, expireThreshold} from '../variables.js'
-import log from '../log.js'
+import {steamGamePercentage, hour12, timezoneLocale, timezone,
+  gogGamePercentage, expireThreshold, gamesPerPage} from '../utils/variables.js'
+import log from '../utils/log.js'
 
 import {Low, JSONFile} from 'lowdb'
 
@@ -12,7 +13,7 @@ const gog = new Gog()
 import Ubisoft from '../stores/ubisoft.js'
 const ubisoft = new Ubisoft()
 
-const filePath = './db/db.json'
+const filePath = '../db/db.json'
 const adapter = new JSONFile(filePath)
 const db = new Low(adapter)
 
@@ -268,7 +269,7 @@ export async function getGameData(store, page, sort, asc) {
         })
         break
     }
-    resolve(sortedList.splice(30*(page-1), 30))
+    resolve(sortedList.splice(gamesPerPage*(page-1), gamesPerPage))
   })
 }
 
@@ -286,7 +287,7 @@ export async function getGameDataPages(store) {
         elements.push(element)
       }
     })
-    resolve(elements.length > 0 ? Math.ceil(elements.length / 30) : 1)
+    resolve(elements.length > 0 ? Math.ceil(elements.length / gamesPerPage) : 1)
   })
 }
 
@@ -345,9 +346,9 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
           })
           break
       }
-      resolve(sortedList.splice(30*(page-1), 30))
+      resolve(sortedList.splice(gamesPerPage*(page-1), gamesPerPage))
     } else {
-      resolve(elements.splice(30*(page-1), 30))
+      resolve(elements.splice(gamesPerPage*(page-1), gamesPerPage))
     }
   })
 }
@@ -359,7 +360,7 @@ export async function getRecentlyDeletedGames(page, sort, asc) {
  */
 export async function getRecentlyDeletedGamesPages() {
   return new Promise(async (resolve) => {
-    resolve(deleted.length > 0 ? Math.ceil(deleted.length / 30) : 1)
+    resolve(deleted.length > 0 ? Math.ceil(deleted.length / gamesPerPage) : 1)
   })
 }
 

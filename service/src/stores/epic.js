@@ -1,7 +1,7 @@
 import https from 'https'
-import log from '../log.js'
+import log from '../utils/log.js'
 
-import {country, locale, epicAPIURL, epicStoreURL} from '../variables.js'
+import {country, locale, epicAPIURL, epicStoreURL} from '../utils/variables.js'
 
 export default class Epic {
   /**

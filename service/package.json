@@ -21,6 +21,7 @@
     "html-entities": "^2.3.2",
     "later": "^1.2.0",
     "lowdb": "^3.0.0",
+    "moment": "^2.29.3",
     "mongodb": "^4.5.0",
     "node-html-parser": "^5.2.0",
     "node-telegram-bot-api": "^0.56.0"

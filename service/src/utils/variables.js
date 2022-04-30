@@ -45,3 +45,8 @@ const mongodbPort = process.env.MONGO_PORT || 27017
 const mongodbUser = process.env.MONGO_USER || 'root'
 const mongodbPass = process.env.MONGO_PASS || 'mongodb'
 export const mongodbUrl = 'mongodb://'+mongodbUser+':'+mongodbPass+'@'+mongodbHost+':'+mongodbPort+''
+
+export const gamesPerPage = defaults.games_per_page
+
+export const debugSkipDelete = process.env.DEBUG_SKIP_DELETE ==='true' || true
+export const debugSkipStores = process.env.DEBUG_SKIP_STORES ==='true' || false

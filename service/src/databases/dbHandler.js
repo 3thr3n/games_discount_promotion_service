@@ -1,8 +1,9 @@
-import {mongodbEnabled} from './variables.js'
+import {mongodbEnabled} from '../utils/variables.js'
 
 import {prepareWriteToDB, checkDB, deleteDB, writeToDB, getGameData,
-  getGameDataPages, getSearchData, getRecentlyDeletedGames, getRecentlyDeletedGamesPages} from './databases/lowDbHandler.js'
-import {connectToMongo} from './databases/mongoHandler.js'
+  getGameDataPages, getSearchData, getRecentlyDeletedGames, getRecentlyDeletedGamesPages} from './lowDbHandler.js'
+import {connectToMongo, writeInMongo, getGamesFromMongo,
+  getPagesFromMongo, searchInMongo, deleteFromMongo, moveGamesToDeleted, getDeletedGamesFromMongo} from './mongoHandler.js'
 
 await connectDB()
 
@@ -27,7 +28,7 @@ async function connectDB() {
  */
 export async function getGamesFromDatabase(store, page, sort, asc) {
   if (mongodbEnabled) {
-    console.log('getGamesFromDatabase')
+    return await getGamesFromMongo(store, page, sort, asc)
   } else {
     return await getGameData(store, page, sort, asc)
   }
@@ -40,7 +41,7 @@ export async function getGamesFromDatabase(store, page, sort, asc) {
  */
 export async function getGamePagesFromDatabase(store) {
   if (mongodbEnabled) {
-    console.log('getGamePagesFromDatabase')
+    return await getPagesFromMongo(store)
   } else {
     return await getGameDataPages(store)
   }
@@ -55,7 +56,7 @@ export async function getGamePagesFromDatabase(store) {
  */
 export async function getDeletedGamesFromDatabase(page, sort, asc) {
   if (mongodbEnabled) {
-    console.log('getDeletedGamesFromDatabase')
+    return await getDeletedGamesFromMongo(page, sort, asc)
   } else {
     return await getRecentlyDeletedGames(page, sort, asc)
   }
@@ -67,7 +68,7 @@ export async function getDeletedGamesFromDatabase(page, sort, asc) {
  */
 export async function getDeletedGamePagesFromDatabase() {
   if (mongodbEnabled) {
-    console.log('getDeletedGamePagesFromDatabase')
+    return await getPagesFromMongo('', true)
   } else {
     return await getRecentlyDeletedGamesPages()
   }
@@ -80,7 +81,7 @@ export async function getDeletedGamePagesFromDatabase() {
  */
 export async function searchInDatabase(query) {
   if (mongodbEnabled) {
-    console.log('searchInDatabase')
+    return await searchInMongo(query)
   } else {
     return await getSearchData(query)
   }
@@ -93,7 +94,7 @@ export async function searchInDatabase(query) {
  */
 export async function prepareWrite(dbData) {
   if (mongodbEnabled) {
-    console.log('prepareWrite')
+    return await writeInMongo(dbData)
   } else {
     return await prepareWriteToDB(dbData)
   }
@@ -113,8 +114,10 @@ export function writeDatabase() {
  * @param {number} startAt start deletetion at position x
  */
 export async function cleanupDatabase(startAt) {
+  console.log('cleanupDatabase')
   if (mongodbEnabled) {
-    console.log('cleanupDatabase')
+    await deleteFromMongo()
+    await moveGamesToDeleted()
   } else {
     await deleteDB(startAt)
   }

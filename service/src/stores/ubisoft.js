@@ -1,5 +1,5 @@
-import {locale, ubisoftGamePercentage, ubisoftGamePrice} from '../variables.js'
-import log from '../log.js'
+import {locale, ubisoftGamePercentage, ubisoftGamePrice} from '../utils/variables.js'
+import log from '../utils/log.js'
 
 import {parse} from 'node-html-parser'
 import https from 'https'

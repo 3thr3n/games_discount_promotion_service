@@ -1,6 +1,6 @@
 import {cron, epicEnabled, gogEnabled,
   steamEnabled, ubisoftEnabled, timezone,
-  timezoneLocale, hour12} from './variables.js'
+  timezoneLocale, hour12, debugSkipDelete, debugSkipStores} from './utils/variables.js'
 
 const env = process.env.NODE_ENV || 'development'
 import cors from 'cors'
@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const __vuePath = __dirname + '/vue'
 
-import log from './log.js'
+import log from './utils/log.js'
 
 import express from 'express'
 const app = express()
@@ -44,9 +44,9 @@ import {cleanupDatabase, prepareWrite,
   writeDatabase, getGamesFromDatabase, getGamePagesFromDatabase,
   searchInDatabase,
   getDeletedGamesFromDatabase,
-  getDeletedGamePagesFromDatabase} from './dbHandler.js'
+  getDeletedGamePagesFromDatabase} from './databases/dbHandler.js'
 
-import {sendMessage, sendMessageTooMany} from './msg.js'
+import {sendMessage, sendMessageTooMany} from './utils/msg.js'
 
 // #region Setup Express
 
@@ -219,7 +219,7 @@ async function sendingPendingMessages(pendingMessages) {
       if (pendingChanges[i][1].info === undefined || pendingChanges[i][1].info === '') {
         return
       }
-      const messageSent = sendMessage(pendingChanges[i][1].dbData, pendingChanges[i][1].info)
+      const messageSent = await sendMessage(pendingChanges[i][1].dbData, pendingChanges[i][1].info)
       if (messageSent) {
         await wait(3250)
       }
@@ -295,11 +295,11 @@ async function init() {
   date.setHours(date.getHours() + 1)
 
   // Run only when the next execution is over one hour away
-  if (deleteCronTimes > date) {
+  if (deleteCronTimes > date && !debugSkipDelete) {
     await cleanupDatabase(0)
   }
 
-  if (mainCronTimes > date) {
+  if (mainCronTimes > date && !debugSkipStores) {
     if (steamEnabled) {
       execSteam()
     }
