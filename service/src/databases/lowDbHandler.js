@@ -1,5 +1,5 @@
 import {steamGamePercentage, hour12, timezoneLocale, timezone,
-  gogGamePercentage, expireThreshold, gamesPerPage} from '../utils/variables.js'
+  gogGamePercentage, expireThreshold, gamesPerPage, lowdbFile} from '../utils/variables.js'
 import log from '../utils/log.js'
 
 import {Low, JSONFile} from 'lowdb'
@@ -13,8 +13,7 @@ const gog = new Gog()
 import Ubisoft from '../stores/ubisoft.js'
 const ubisoft = new Ubisoft()
 
-const filePath = './db/db.json'
-const adapter = new JSONFile(filePath)
+const adapter = new JSONFile(lowdbFile)
 const db = new Low(adapter)
 
 let {games, deleted} = []

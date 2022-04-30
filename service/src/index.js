@@ -39,6 +39,8 @@ const ubisoft = new Ubisoft()
 
 let sendingMessages = false
 
+import './databases/migrate.js'
+
 // Initailize Database
 import {cleanupDatabase, prepareWrite,
   writeDatabase, getGamesFromDatabase, getGamePagesFromDatabase,

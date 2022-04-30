@@ -26,5 +26,7 @@
 
   "expire_threshold": 7,
 
-  "games_per_page": 24
+  "games_per_page": 24,
+
+  "lowdbFile": "./db/db.json"
 }
