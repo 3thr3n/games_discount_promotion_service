@@ -189,6 +189,7 @@
       this.gamestoreCounter = new Date(get.data.mainTimer).getTime() - new Date().getTime()
     }
   }
+  
   function runTime(distance) {
     // Time calculations for days, hours, minutes and seconds
     const days = Math.floor(distance / (1000 * 60 * 60 * 24))
