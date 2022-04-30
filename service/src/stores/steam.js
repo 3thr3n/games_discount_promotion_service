@@ -1,7 +1,7 @@
 import https from 'https'
-import log from '../log.js'
+import log from '../utils/log.js'
 
-import {steamAPIURL, steamStoreURL, locale, steamGamePrice, steamGamePercentage} from '../variables.js'
+import {steamAPIURL, steamStoreURL, locale, steamGamePrice, steamGamePercentage} from '../utils/variables.js'
 
 export default class Steam {
   /**

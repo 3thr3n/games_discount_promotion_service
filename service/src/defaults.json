@@ -24,5 +24,9 @@
   "ubisoft_game_price": 1999,
   "ubisoft_game_percentage": 20,
 
-  "expire_threshold": 7
+  "expire_threshold": 7,
+
+  "games_per_page": 24,
+
+  "lowdbFile": "./db/db.json"
 }

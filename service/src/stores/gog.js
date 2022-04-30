@@ -1,7 +1,8 @@
 import https from 'https'
-import log from '../log.js'
+import log from '../utils/log.js'
 
-import {country, timezoneLocale, gogStoreURL, gogImageURL, gogCurrency, gogGamePrice, gogGamePercentage, gogAPIURL} from '../variables.js'
+import {country, timezoneLocale, gogStoreURL, gogImageURL,
+  gogCurrency, gogGamePrice, gogGamePercentage, gogAPIURL} from '../utils/variables.js'
 
 export default class Gog {
   /**
@@ -105,7 +106,6 @@ export default class Gog {
    * @return {Promise<JSON>} a JSON with prices
    */
   fetchGogIndividualJson(appid) {
-    log('** fetchGogIndividualJson')
     return new Promise((resolve, reject) => {
       const options = {
         hostname: gogAPIURL,

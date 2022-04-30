@@ -2,10 +2,13 @@ import {timezoneLocale, timezone, hour12} from './variables.js'
 
 // Telegram-BOT
 import TelegramBot from 'node-telegram-bot-api'
+import log from './log.js'
 const token = process.env.TELEGRAM_BOT_TOKEN
 const chatID = process.env.TELEGRAM_CHATID
 let bot
-if (token !== undefined && chatID !== undefined && token.length > 0 && chatID != 0) {
+const telegram = (token !== undefined && token.length > 0) && (chatID !== undefined && chatID != 0)
+log('telegram: ' + telegram)
+if (telegram) {
   bot = new TelegramBot(token, {polling: false})
 }
 
@@ -53,7 +56,7 @@ export async function sendMessage(dbData, changes) {
   console.info(message)
   const response = await sendTelegramMessage(dbData, changes)
 
-  if (bot === undefined) {
+  if (!telegram) {
     return false
   }
   return response === false || response !== undefined

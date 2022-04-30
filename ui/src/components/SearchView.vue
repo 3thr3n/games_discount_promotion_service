@@ -24,7 +24,7 @@
 </template>
 
 <script>
-  import GameCardSearchComponent from './GameCardSearchComponent'
+  import GameCardSearchComponent from './GameCardSearchComponent.vue'
 
   import {AjaxClient2} from 'ajax-client'
   const client = new AjaxClient2();

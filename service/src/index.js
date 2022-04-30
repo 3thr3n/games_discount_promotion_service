@@ -1,6 +1,6 @@
 import {cron, epicEnabled, gogEnabled,
   steamEnabled, ubisoftEnabled, timezone,
-  timezoneLocale, hour12} from './variables.js'
+  timezoneLocale, hour12, debugSkipDelete, debugSkipStores} from './utils/variables.js'
 
 const env = process.env.NODE_ENV || 'development'
 import cors from 'cors'
@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const __vuePath = __dirname + '/vue'
 
-import log from './log.js'
+import log from './utils/log.js'
 
 import express from 'express'
 const app = express()
@@ -39,12 +39,16 @@ const ubisoft = new Ubisoft()
 
 let sendingMessages = false
 
+import './databases/migrate.js'
+
 // Initailize Database
-import {writeToDB, prepareWriteToDB,
-  deleteDB, getGameData, getRecentlyDeletedGames,
-  getGameDataPages, getRecentlyDeletedGamesPages,
-  getSearchData} from './db.js'
-import {sendMessage, sendMessageTooMany} from './msg.js'
+import {cleanupDatabase, prepareWrite,
+  writeDatabase, getGamesFromDatabase, getGamePagesFromDatabase,
+  searchInDatabase,
+  getDeletedGamesFromDatabase,
+  getDeletedGamePagesFromDatabase} from './databases/dbHandler.js'
+
+import {sendMessage, sendMessageTooMany} from './utils/msg.js'
 
 // #region Setup Express
 
@@ -103,8 +107,8 @@ app.get('/api/main', function(req, res) {
 })
 
 app.get('/api/epicgames', async function(req, res) {
-  const gamesList = await getGameData('epic', req.query['page'], req.query['sort'], req.query['asc'])
-  const gamesListPages = await getGameDataPages('epic')
+  const gamesList = await getGamesFromDatabase('epic', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGamePagesFromDatabase('epic')
   res.send({
     gamesList,
     gamesListPages,
@@ -113,8 +117,8 @@ app.get('/api/epicgames', async function(req, res) {
 })
 
 app.get('/api/steam', async function(req, res) {
-  const gamesList = await getGameData('steam', req.query['page'], req.query['sort'], req.query['asc'])
-  const gamesListPages = await getGameDataPages('steam')
+  const gamesList = await getGamesFromDatabase('steam', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGamePagesFromDatabase('steam')
   res.send( {
     gamesList,
     gamesListPages,
@@ -123,8 +127,8 @@ app.get('/api/steam', async function(req, res) {
 })
 
 app.get('/api/gog', async function(req, res) {
-  const gamesList = await getGameData('gog', req.query['page'], req.query['sort'], req.query['asc'])
-  const gamesListPages = await getGameDataPages('gog')
+  const gamesList = await getGamesFromDatabase('gog', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGamePagesFromDatabase('gog')
   res.send({
     gamesList,
     gamesListPages,
@@ -133,8 +137,8 @@ app.get('/api/gog', async function(req, res) {
 })
 
 app.get('/api/ubisoft', async function(req, res) {
-  const gamesList = await getGameData('ubisoft', req.query['page'], req.query['sort'], req.query['asc'])
-  const gamesListPages = await getGameDataPages('ubisoft')
+  const gamesList = await getGamesFromDatabase('ubisoft', req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getGamePagesFromDatabase('ubisoft')
   res.send({
     gamesList,
     gamesListPages,
@@ -143,8 +147,8 @@ app.get('/api/ubisoft', async function(req, res) {
 })
 
 app.get('/api/old', async function(req, res) {
-  const gamesList = await getRecentlyDeletedGames(req.query['page'], req.query['sort'], req.query['asc'])
-  const gamesListPages = await getRecentlyDeletedGamesPages()
+  const gamesList = await getDeletedGamesFromDatabase(req.query['page'], req.query['sort'], req.query['asc'])
+  const gamesListPages = await getDeletedGamePagesFromDatabase()
   res.send( {
     gamesList,
     timezone,
@@ -162,7 +166,7 @@ app.get('/api/search', async function(req, res) {
     return
   }
 
-  const gameList = await getSearchData(req.query['q'], req.query['page'])
+  const gameList = await searchInDatabase(req.query['q'])
   const keys = Object.keys(gameList)
   const shopList = {}
   for (const key of keys) {
@@ -217,7 +221,7 @@ async function sendingPendingMessages(pendingMessages) {
       if (pendingChanges[i][1].info === undefined || pendingChanges[i][1].info === '') {
         return
       }
-      const messageSent = sendMessage(pendingChanges[i][1].dbData, pendingChanges[i][1].info)
+      const messageSent = await sendMessage(pendingChanges[i][1].dbData, pendingChanges[i][1].info)
       if (messageSent) {
         await wait(3250)
       }
@@ -273,7 +277,7 @@ async function cronJob() {
  * Runs every night at 1 am
  */
 async function cronDeleteJob() {
-  deleteDB(0)
+  cleanupDatabase(0)
 }
 
 // =====================================================================
@@ -293,11 +297,11 @@ async function init() {
   date.setHours(date.getHours() + 1)
 
   // Run only when the next execution is over one hour away
-  if (deleteCronTimes > date) {
-    await deleteDB(0)
+  if (deleteCronTimes > date && !debugSkipDelete) {
+    await cleanupDatabase(0)
   }
 
-  if (mainCronTimes > date) {
+  if (mainCronTimes > date && !debugSkipStores) {
     if (steamEnabled) {
       execSteam()
     }
@@ -344,7 +348,7 @@ async function execSteam() {
           const fetchSteamIndivdualJson = await steam.fetchSteamIndivdualJson(id)
           if (fetchSteamIndivdualJson) {
             const processSteamGameJson = await steam.processSteamGameJson(fetchSteamIndivdualJson)
-            const info = await prepareWriteToDB(processSteamGameJson)
+            const info = await prepareWrite(processSteamGameJson)
             pendingMessages.set(processSteamGameJson.title, {dbData: processSteamGameJson, info})
           }
         } catch (error) {
@@ -352,7 +356,7 @@ async function execSteam() {
           log('Error: ' + error)
           log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         }
-        writeToDB()
+        writeDatabase()
       }
     } catch (error) {
       log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
@@ -362,7 +366,7 @@ async function execSteam() {
   }
 
   await sendingPendingMessages(pendingMessages)
-  writeToDB()
+  writeDatabase()
 }
 
 // =====================================================================
@@ -382,12 +386,12 @@ async function execEpic() {
     if (listDbData !== undefined) {
       for (let i = 0; i < listDbData.length; i++) {
         const dbData = listDbData[i]
-        const info = await prepareWriteToDB(dbData)
+        const info = await prepareWrite(dbData)
         pendingMessages.set(dbData.title, {dbData, info})
       }
     }
     await sendingPendingMessages(pendingMessages)
-    writeToDB()
+    writeDatabase()
   } catch (error) {
     log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     log('Error: ' + error)
@@ -412,13 +416,13 @@ async function execGog() {
       const gameData = fetchGogJson[i]
       const processGogGameJson = await gog.processGogGameJson(gameData)
       if (processGogGameJson !== undefined) {
-        const info = await prepareWriteToDB(processGogGameJson)
+        const info = await prepareWrite(processGogGameJson)
         pendingMessages.set(processGogGameJson.title, {dbData: processGogGameJson, info})
       }
     }
 
     await sendingPendingMessages(pendingMessages)
-    writeToDB()
+    writeDatabase()
   } catch (error) {
     log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     log('Error: ' + error)
@@ -456,13 +460,13 @@ async function execUbisoft() {
       if (processUbisoftHtml !== undefined) {
         for (let x = 0; x < processUbisoftHtml.length; x++) {
           const gameJson = processUbisoftHtml[x]
-          const info = await prepareWriteToDB(gameJson)
+          const info = await prepareWrite(gameJson)
           pendingMessages.set(gameJson.title, {dbData: gameJson, info})
         }
       }
     }
     await sendingPendingMessages(pendingMessages)
-    writeToDB()
+    writeDatabase()
   } catch (e) {
     log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     log('Error: ' + error)
