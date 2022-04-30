@@ -10,6 +10,7 @@ WORKDIR /usr/src/games_service
 COPY service/package*.json ./
 RUN npm install
 COPY ./service .
+RUN rm -f .env
 COPY --from=UI_BUILDER /usr/src/games_service_ui/dist ./src/vue
 RUN npx eslint src
 ENV NODE_ENV=production

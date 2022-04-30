@@ -114,7 +114,6 @@ export function writeDatabase() {
  * @param {number} startAt start deletetion at position x
  */
 export async function cleanupDatabase(startAt) {
-  console.log('cleanupDatabase')
   if (mongodbEnabled) {
     await deleteFromMongo()
     await moveGamesToDeleted()

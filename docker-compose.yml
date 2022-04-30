@@ -5,7 +5,7 @@ services:
     build: .
     image: 3thr3n/games_discount_promotions_service:latest
     volumes:
-      - ./db/:/usr/src/games_service/db/
+      - ./db/lowdb/:/usr/src/games_service/db/
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
@@ -35,7 +35,24 @@ services:
       - GOG_CURRENCY=${GOG_CURRENCY}
       - GOG_GAME_PRICE=${GOG_GAME_PRICE}
       - GOG_GAME_PERCENTAGE=${GOG_GAME_PERCENTAGE}
-      # UBISOFT
+      # Ubisoft
       - UBISOFT_ENABLED=${UBISOFT_ENABLED}
       - UBISOFT_GAME_PRICE=${UBISOFT_GAME_PRICE}
       - UBISOFT_GAME_PERCENTAGE=${UBISOFT_GAME_PERCENTAGE}
+      # MongoDB
+      - MONGO_ENABLED=${MONGO_ENABLED}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASS=${MONGO_PASS}
+    depends_on:
+      - mongodb
+  
+  mongodb:
+    image: mongo:5
+    restart: unless-stopped
+    volumes:
+      - ./db/mongodb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}

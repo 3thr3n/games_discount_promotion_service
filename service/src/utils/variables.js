@@ -1,54 +1,56 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+import {env} from 'process'
+
 // import json
 import {createRequire} from 'module'
 const require = createRequire(import.meta.url)
 export const defaults = require('../defaults.json')
 
-export const timezone = process.env.TIMEZONE || defaults.timezone
-export const timezoneLocale = process.env.TIMEZONE_LOCALE || defaults.timezone_locale
-export const hour12 = process.env.HOUR_12 || defaults['12Hour']
+export const timezone = env.TIMEZONE || defaults.timezone
+export const timezoneLocale = env.TIMEZONE_LOCALE || defaults.timezone_locale
+export const hour12 = env.HOUR_12 || defaults['12Hour']
 
-export const locale = process.env.LOCALE || defaults.locale
-export const country = process.env.COUNTRY || defaults.country
-export const cron = '0 0 ' + (process.env.CRON || defaults.cron)
+export const locale = env.LOCALE || defaults.locale
+export const country = env.COUNTRY || defaults.country
+export const cron = '0 0 ' + (env.CRON || defaults.cron)
 
-export const epicEnabled = process.env.EPIC_ENABLED === 'true' || false
+export const epicEnabled = env.EPIC_ENABLED === 'true' || false
 export const epicAPIURL = defaults.epic_api_url
 export const epicStoreURL = defaults.epic_store_url
 
-export const steamEnabled = process.env.STEAM_ENABLED === 'true' || false
-export const steamGamePrice = process.env.STEAM_GAME_PRICE || defaults.steam_game_price
-export const steamGamePercentage = process.env.STEAM_GAME_PERCENTAGE || defaults.steam_game_percentage
+export const steamEnabled = env.STEAM_ENABLED === 'true' || false
+export const steamGamePrice = env.STEAM_GAME_PRICE || defaults.steam_game_price
+export const steamGamePercentage = env.STEAM_GAME_PERCENTAGE || defaults.steam_game_percentage
 export const steamStoreURL = defaults.steam_store_url
 export const steamAPIURL = defaults.steam_api_url
 
-export const gogEnabled = process.env.GOG_ENABLED === 'true' || false
-export const gogCurrency = process.env.GOG_CURRENCY || defaults.gog_currency
-export const gogGamePrice = process.env.GOG_GAME_PRICE || defaults.gog_game_price
-export const gogGamePercentage = process.env.GOG_GAME_PERCENTAGE || defaults.gog_game_percentage
+export const gogEnabled = env.GOG_ENABLED === 'true' || false
+export const gogCurrency = env.GOG_CURRENCY || defaults.gog_currency
+export const gogGamePrice = env.GOG_GAME_PRICE || defaults.gog_game_price
+export const gogGamePercentage = env.GOG_GAME_PERCENTAGE || defaults.gog_game_percentage
 export const gogStoreURL = defaults.gog_store_url
 export const gogAPIURL = defaults.gog_api_url
 export const gogImageURL = defaults.gog_image_url
 
-export const ubisoftEnabled = process.env.UBISOFT_ENABLED === 'true' || false
-export const ubisoftGamePrice = process.env.UBISOFT_GAME_PRICE || defaults.ubisoft_game_price
-export const ubisoftGamePercentage = process.env.UBISOFT_GAME_PERCENTAGE || defaults.ubisoft_game_percentage
+export const ubisoftEnabled = env.UBISOFT_ENABLED === 'true' || false
+export const ubisoftGamePrice = env.UBISOFT_GAME_PRICE || defaults.ubisoft_game_price
+export const ubisoftGamePercentage = env.UBISOFT_GAME_PERCENTAGE || defaults.ubisoft_game_percentage
 
-export const expireThreshold = process.env.EXPIRE_THRESHOLD || defaults.expire_threshold
+export const expireThreshold = env.EXPIRE_THRESHOLD || defaults.expire_threshold
 
-export const mongodbEnabled = process.env.MONGO_ENABLED === 'true' || false
+export const mongodbEnabled = env.MONGO_ENABLED === 'true' || false
 
-const mongodbHost = process.env.MONGO_HOST || 'localhost'
-const mongodbPort = process.env.MONGO_PORT || 27017
-const mongodbUser = process.env.MONGO_USER || 'root'
-const mongodbPass = process.env.MONGO_PASS || 'mongodb'
+const mongodbHost = env.MONGO_HOST || 'localhost'
+const mongodbPort = env.MONGO_PORT || 27017
+const mongodbUser = env.MONGO_USER || 'root'
+const mongodbPass = env.MONGO_PASS || 'mongodb'
 export const mongodbUrl = 'mongodb://'+mongodbUser+':'+mongodbPass+'@'+mongodbHost+':'+mongodbPort+''
 
 export const gamesPerPage = defaults.games_per_page
 
-export const debugSkipDelete = process.env.DEBUG_SKIP_DELETE === 'true' || false
-export const debugSkipStores = process.env.DEBUG_SKIP_STORES === 'true' || false
+export const debugSkipDelete = env.DEBUG_SKIP_DELETE === 'true' || false
+export const debugSkipStores = env.DEBUG_SKIP_STORES === 'true' || false
 
 export const lowdbFile = defaults.lowdbFile

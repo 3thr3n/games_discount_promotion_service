@@ -8,3 +8,4 @@ Dockerfile
 docker-compose.yml
 .gitignore
 /dist
+/service/.env
