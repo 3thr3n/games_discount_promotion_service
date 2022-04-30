@@ -3,7 +3,6 @@
   "version": "1.5.1",
   "description": "",
   "scripts": {
-    "dev": "(cd service && npm run dev) & (cd ui && npm run serve)",
     "build": "cd ui && npm run build && rm -rf ../service/src/vue && mkdir ../service/src/vue && cp -r ./dist/* ../service/src/vue/",
     "lint": "(cd service && npm run lint) & (cd ui && npm run lint)"
   },
