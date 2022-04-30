@@ -161,7 +161,6 @@
     data: () => ({
       currentPath: window.location.hash,
       search: '',
-      gameList: {},
 
       propData: {},
     }),
@@ -193,6 +192,7 @@
           }
           this.propData = {value}
         } else {
+          this.search = ''
           const route = getRoute(urlPath)
           this.propData = (route ? route.props : {})
         }
