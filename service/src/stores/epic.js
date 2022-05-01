@@ -64,7 +64,7 @@ export default class Epic {
     log('EPIC * Running processEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
-      const {title, id, isCodeRedemptionOnly, seller, price, keyImages, productSlug} = gameData[i]
+      const {title, id, isCodeRedemptionOnly, seller, price, keyImages, productSlug, offerMappings} = gameData[i]
       const {originalPrice, discountPrice, discount, currencyCode, currencyInfo} = price.totalPrice
 
       if (originalPrice === 0 || discount === 0 || originalPrice === discountPrice) {
@@ -84,6 +84,13 @@ export default class Epic {
       let productUrl = ''
       if (productSlug) {
         productUrl = productSlug.replace('/home', '')
+      } else if (offerMappings && offerMappings.length > 0) {
+        offerMappings.forEach((offer) => {
+          if (offer.pageSlug) {
+            productUrl = offer.pageSlug
+            return
+          }
+        })
       }
 
       const endDates = []
