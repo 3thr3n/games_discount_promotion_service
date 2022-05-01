@@ -28,5 +28,5 @@
 
   "games_per_page": 24,
 
-  "lowdbFile": "./db/db.json"
+  "lowdbFile": "./db/lowdb/db.json"
 }

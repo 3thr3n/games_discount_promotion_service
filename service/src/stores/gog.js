@@ -125,7 +125,8 @@ export default class Gog {
         res.on('end', async () => {
           try {
             const gogJson = JSON.parse(body)
-            resolve(gogJson['_embedded'].prices[0])
+            const price = gogJson['_embedded'].prices[0]
+            resolve(price)
           } catch (error) {
             console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             console.error('Error: ' + error)

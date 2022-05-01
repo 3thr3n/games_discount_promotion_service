@@ -17,6 +17,14 @@ let gameCollection = undefined
 let deleteCollection = undefined
 
 /**
+ * Method to sleep x ms
+ *
+ * @param {number} ms
+ * @return {Promise<any>}
+ */
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
  *
  */
 export async function connectToMongo() {
@@ -110,7 +118,7 @@ export async function moveGamesToDeleted() {
         break
       case 'steam':
         {
-          const gameJson = await steam.fetchSteamIndivdualJson(x.id)
+          const gameJson = await steam.fetchSteamIndivdualJson(x.id).catch((y) => log(y))
           if (gameJson) {
             const priceOverview = gameJson.price_overview
 
@@ -119,22 +127,26 @@ export async function moveGamesToDeleted() {
               fine = false
             }
           }
+          await wait(750)
         }
         break
       case 'gog':
         {
-          const gameJson = await gog.fetchGogIndividualJson(x.id)
-          const originalPrice = parseInt(gameJson.basePrice)
-          const discountPrice = parseInt(gameJson.finalPrice)
+          const gameJson = await gog.fetchGogIndividualJson(x.id).catch((y) => log(y))
+          if (gameJson) {
+            const originalPrice = parseInt(gameJson.basePrice)
+            const discountPrice = parseInt(gameJson.finalPrice)
 
-          if (discountPrice == originalPrice || Math.round((originalPrice - discountPrice) / originalPrice * 100) < gogGamePercentage) {
-            fine = false
+            if (discountPrice == originalPrice || Math.round((originalPrice - discountPrice) / originalPrice * 100) < gogGamePercentage) {
+              fine = false
+            }
           }
         }
         break
       case 'ubisoft':
         {
-          if (!await ubisoft.checkIfDiscounted(x)) {
+          const discounted = await ubisoft.checkIfDiscounted(x).catch((y) => log(y))
+          if (!discounted) {
             fine = false
           }
         }
