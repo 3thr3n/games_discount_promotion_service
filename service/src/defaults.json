@@ -6,13 +6,15 @@
   "timezone": "UTC",
   "12Hour": false,
 
-  "steam_game_price": 4999,
-  "steam_game_percentage": 50,
   "steam_store_url": "store.steampowered.com",
   "steam_api_url": "api.steampowered.com",
+  "steam_game_price": 4999,
+  "steam_game_percentage": 50,
 
-  "epic_api_url": "store-site-backend-static-ipv4.ak.epicgames.com",
   "epic_store_url": "https://www.epicgames.com/store/en-US/p/",
+  "epic_api_url": "store.epicgames.com",
+  "epic_game_price": 1999,
+  "epic_game_percentage": 20,
 
   "gog_currency": "USD",
   "gog_store_url": "www.gog.com",

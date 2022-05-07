@@ -66,7 +66,7 @@
           this.games = fetchedData.gamesList
 
           if (value === 'Old') {
-            this.sortList = ['Title', 'Original Price', 'Discount', 'Deleted on']
+            this.sortList = ['Title', 'Original price', 'Discount', 'Deleted on']
           } else {
             this.sortList = ['Title', 'Original price', 'Discount price', 'Discount', 'Added on']
           }
