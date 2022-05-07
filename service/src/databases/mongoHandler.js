@@ -1,6 +1,9 @@
 import {MongoClient} from 'mongodb'
-import {mongodbUrl, gamesPerPage, expireThreshold, steamGamePercentage, gogGamePercentage} from '../utils/variables.js'
+import {mongodbUrl, gamesPerPage, expireThreshold, steamGamePercentage, gogGamePercentage, epicGamePercentage} from '../utils/variables.js'
 import moment from 'moment'
+
+import Epic from '../stores/epic.js'
+const epic = new Epic()
 
 import Steam from '../stores/steam.js'
 const steam = new Steam()
@@ -58,7 +61,6 @@ export async function writeInMongo(dbData, deleted) {
         id: dbData.id,
         store: dbData.store,
         title: dbData.title,
-        codeRedemptionOnly: dbData.codeRedemptionOnly,
         sellerName: dbData.sellerName,
         originalPrice: dbData.originalPrice,
         discount: dbData.discount,
@@ -68,10 +70,19 @@ export async function writeInMongo(dbData, deleted) {
         currencyDecimals: dbData.currencyDecimals,
         thumbnailURL: dbData.thumbnailURL,
         storeURL: dbData.storeURL,
-        endDate: dbData.endDate,
-        added: dbData.added,
-        deleted: dbData.deleted,
       },
+    }
+    if (dbData.namespace) {
+      updateOrInsert.$set.namespace = dbData.namespace
+    }
+    if (dbData.endDate) {
+      updateOrInsert.$set.endDate = dbData.endDate
+    }
+    if (dbData.codeRedemptionOnly) {
+      updateOrInsert.$set.codeRedemptionOnly = dbData.codeRedemptionOnly
+    }
+    if (dbData.deleted) {
+      updateOrInsert.$set.deleted = dbData.deleted
     }
 
     if (deleted) {
@@ -111,9 +122,18 @@ export async function moveGamesToDeleted() {
     let fine = true
     switch (x.store) {
       case 'epic':
-        const endDate = new Date(x.endDate)
-        if (endDate < date) {
-          fine = false
+        if (x.endDate) {
+          const endDate = new Date(x.endDate)
+          if (endDate < date) {
+            fine = false
+          }
+        } else {
+          const fetchEpicSingleGame = await epic.fetchEpicSingleGame(x.id, x.namespace).catch((y) => log(y))
+          const dbData = await epic.processEpicJson(fetchEpicSingleGame).catch((y) => log(y))
+          if (dbData &&
+            (dbData.originalPrice == dbData.discountPrice || dbData.discountPercent < epicGamePercentage)) {
+            fine = false
+          }
         }
         break
       case 'steam':
@@ -196,7 +216,7 @@ export async function getGamesFromMongo(shop, page, sort, asc) {
     limit: gamesPerPage,
     skip: gamesPerPage * (page-1),
   }).toArray()
-  return findResult
+  return convertIdToCreationDate(findResult)
 }
 
 /**
@@ -227,7 +247,7 @@ export async function getDeletedGamesFromMongo(page, sort, asc) {
     limit: gamesPerPage,
     skip: gamesPerPage * (page-1),
   }).toArray()
-  return findResult
+  return convertIdToCreationDate(findResult)
 }
 
 /**
@@ -253,5 +273,17 @@ export async function getPagesFromMongo(shop, deleted) {
 export async function searchInMongo(search) {
   const query = {'title': new RegExp('.*'+search+'.*', 'i')}
   const findResult = await gameCollection.find(query).toArray()
-  return findResult
+  return convertIdToCreationDate(findResult)
+}
+
+/**
+ * Creates out of ObjectId the creationDate (added)
+ * @param {any[]} dbItems list of items out of mongodb
+ * @return {any[]} the list with added creationDate
+ */
+function convertIdToCreationDate(dbItems) {
+  dbItems.forEach((x) => {
+    x.added = x._id.getTimestamp()
+  })
+  return dbItems
 }

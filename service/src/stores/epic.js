@@ -87,7 +87,20 @@ export default class Epic {
     log('EPIC * Running processEpicJson')
     const listDbData = []
     for (let i = 0; i < gameData.length; i++) {
-      const {title, id, isCodeRedemptionOnly, seller, price, keyImages, productSlug, offerMappings, catalogNs, categories} = gameData[i]
+      const {
+        title,
+        id,
+        isCodeRedemptionOnly,
+        seller,
+        price,
+        keyImages,
+        productSlug,
+        urlSlug,
+        offerMappings,
+        catalogNs,
+        categories,
+        namespace,
+      } = gameData[i]
       const {originalPrice, discountPrice, discount, currencyCode, currencyInfo} = price.totalPrice
 
       if (originalPrice === 0 || discount === 0 || originalPrice === discountPrice) {
@@ -105,17 +118,14 @@ export default class Epic {
       const lineOffers = price.lineOffers
       const currencyDecimals = currencyInfo.decimals
       let productUrl = ''
-      if (productSlug) {
+      if (offerMappings && offerMappings.find((offer) => offer.pageSlug)) {
+        productUrl = offerMappings.find((offer) => offer.pageSlug).pageSlug
+      } else if (productSlug) {
         productUrl = productSlug.replace('/home', '')
-      } else if (offerMappings && offerMappings.length > 0) {
-        offerMappings.forEach((offer) => {
-          if (offer.pageSlug) {
-            productUrl = offer.pageSlug
-            return
-          }
-        })
       } else if (catalogNs && catalogNs.mappings && catalogNs.mappings.find((x) => x.pageSlug)) {
         productUrl = catalogNs.mappings.find((x) => x.pageSlug).pageSlug
+      } else if (urlSlug) {
+        productUrl = urlSlug
       }
       if (!productUrl) {
         continue
@@ -145,6 +155,7 @@ export default class Epic {
         store: 'epic',
         title,
         id,
+        namespace,
         codeRedemptionOnly: isCodeRedemptionOnly ? true : false,
         sellerName,
         originalPrice,
@@ -154,12 +165,67 @@ export default class Epic {
         currencyCode,
         currencyDecimals,
         thumbnailURL,
-        storeURL: epicStoreURL+productUrl+'?lang='+locale+'-'+country,
+        storeURL: epicStoreURL+productUrl.trim()+'?lang='+locale+'-'+country,
         endDate: endDates.length > 1 ? endDates : endDates[0],
         added: new Date(),
       }
       listDbData.push(dbData)
     }
     return listDbData
+  }
+
+  /**
+   *
+   * @param {string} id gameId
+   * @param {string} namespace game namespace
+   * @return {Promise<any>}
+   */
+  fetchEpicSingleGame(id, namespace) {
+    return new Promise((resolve, reject) => {
+      log('EPIC * Running fetchEpicSingleGame')
+      const variables = {
+        country,
+        locale,
+        sandboxId: namespace,
+        offerId: id,
+      }
+
+      const options = {
+        hostname: epicAPIURL,
+        port: 443,
+        path: '/graphql?operationName=getCatalogOffer&variables=' + JSON.stringify(variables) + '&' +
+              'extensions={"persistedQuery":{"version":1,"sha256Hash":"ff096572d1065b7058e64c86ce4630bfb5727955056fe910b3f29cb50568fdd7"}}',
+        method: 'GET',
+        timeout: 3000,
+      }
+
+      const req = https.request(options, (res) => {
+        let body = ''
+
+        res.on('data', (d) => {
+          body += d
+        })
+
+        res.on('end', async () => {
+          try {
+            const epicgamesJson = JSON.parse(body)
+            const searchStore = epicgamesJson.data.Catalog.searchStore
+            resolve(searchStore.elements)
+          } catch (error) {
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            console.error('Error: ' + error)
+            console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            reject(error)
+          }
+        })
+      })
+      req.on('error', (error) => {
+        reject(error)
+      })
+      req.on('timeout', (e) => {
+        reject(e)
+      })
+      req.end()
+    })
   }
 }
