@@ -17,6 +17,8 @@ export const country = env.COUNTRY || defaults.country
 export const cron = '0 0 ' + (env.CRON || defaults.cron)
 
 export const epicEnabled = env.EPIC_ENABLED === 'true' || false
+export const epicGamePrice = env.EPIC_GAME_PRICE || defaults.epic_game_price
+export const epicGamePercentage = env.EPIC_GAME_PERCENTAGE || defaults.epic_game_percentage
 export const epicAPIURL = defaults.epic_api_url
 export const epicStoreURL = defaults.epic_store_url
 

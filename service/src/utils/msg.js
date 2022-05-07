@@ -35,20 +35,24 @@ export async function sendMessage(dbData, changes) {
       '(~' + dbData.discountPercent + '%)' :
       '(~' + Math.round(dbData.discount / dbData.originalPrice * 100) + '%)') + '\n' +
   (
-  dbData.store === 'epic' ?
-  '\n' +
-  '  ' + 'Getting key: ' + dbData.codeRedemptionOnly + '\n' +
-  '  ' + 'Ends on : ' +
-    new Date(dbData.endDate).toLocaleString(timezoneLocale,
-        {
-          timeZone: timezone,
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour12: (hour12==='true'),
-          hour: '2-digit',
-          minute: '2-digit',
-        }) + '\n' : '' ) +
+    dbData.store === 'epic' ?
+    '\n' +
+    '  ' + 'Getting key: ' + dbData.codeRedemptionOnly + '\n' +
+    (
+      dbData.endDate ?
+      '  ' + 'Ends on : ' +
+      new Date(dbData.endDate).toLocaleString(timezoneLocale,
+          {
+            timeZone: timezone,
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour12: (hour12==='true'),
+            hour: '2-digit',
+            minute: '2-digit',
+          }) + '\n' :
+    '' ) :
+  '' ) +
   '\n' +
   '  ' + dbData.store + ' store url: ' + dbData.storeURL + '\n' +
   '========================================================================'
@@ -106,16 +110,19 @@ async function sendTelegramMessage(dbData, changes) {
       dbData.store === 'epic' ?
       '\n' +
       '  ' + 'Getting key: ' + dbData.codeRedemptionOnly + '\n' +
-      '  ' + 'Ends on : ' + new Date(dbData.endDate).toLocaleString(timezoneLocale,
-          {
-            timeZone: timezone,
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour12: hour12 === 'true',
-            hour: '2-digit',
-            minute: '2-digit',
-          }) : ''
+        (
+          dbData.endDate ?
+          '  ' + 'Ends on : ' + new Date(dbData.endDate).toLocaleString(timezoneLocale,
+              {
+                timeZone: timezone,
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour12: hour12 === 'true',
+                hour: '2-digit',
+                minute: '2-digit',
+              }) : ''
+        ) : ''
     )
 
   return await bot.sendMessage(chatID, message, {parse_mode: 'markdown'}).catch((error) => {

@@ -378,7 +378,7 @@ async function execSteam() {
  */
 async function execEpic() {
   try {
-    const fetchEpicJson = await epic.fetchEpicJson()
+    const fetchEpicJson = await epic.fetchEpicJson(0)
     const listDbData = await epic.processEpicJson(fetchEpicJson)
 
     const pendingMessages = new Map()
