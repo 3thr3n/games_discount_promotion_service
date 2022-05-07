@@ -128,8 +128,8 @@ export async function moveGamesToDeleted() {
             fine = false
           }
         } else {
-          const fetchEpicSingleGame = await epic.fetchEpicSingleGame(x.id, x.namespace)
-          const dbData = await epic.processEpicJson(fetchEpicSingleGame)
+          const fetchEpicSingleGame = await epic.fetchEpicSingleGame(x.id, x.namespace).catch((y) => log(y))
+          const dbData = await epic.processEpicJson(fetchEpicSingleGame).catch((y) => log(y))
           if (dbData &&
             (dbData.originalPrice == dbData.discountPrice || dbData.discountPercent < epicGamePercentage)) {
             fine = false

@@ -95,6 +95,7 @@ export default class Epic {
         price,
         keyImages,
         productSlug,
+        urlSlug,
         offerMappings,
         catalogNs,
         categories,
@@ -117,17 +118,14 @@ export default class Epic {
       const lineOffers = price.lineOffers
       const currencyDecimals = currencyInfo.decimals
       let productUrl = ''
-      if (productSlug) {
+      if (offerMappings && offerMappings.find((offer) => offer.pageSlug)) {
+        productUrl = offerMappings.find((offer) => offer.pageSlug).pageSlug
+      } else if (productSlug) {
         productUrl = productSlug.replace('/home', '')
-      } else if (offerMappings && offerMappings.length > 0) {
-        offerMappings.forEach((offer) => {
-          if (offer.pageSlug) {
-            productUrl = offer.pageSlug
-            return
-          }
-        })
       } else if (catalogNs && catalogNs.mappings && catalogNs.mappings.find((x) => x.pageSlug)) {
         productUrl = catalogNs.mappings.find((x) => x.pageSlug).pageSlug
+      } else if (urlSlug) {
+        productUrl = urlSlug
       }
       if (!productUrl) {
         continue
@@ -167,7 +165,7 @@ export default class Epic {
         currencyCode,
         currencyDecimals,
         thumbnailURL,
-        storeURL: epicStoreURL+productUrl+'?lang='+locale+'-'+country,
+        storeURL: epicStoreURL+productUrl.trim()+'?lang='+locale+'-'+country,
         endDate: endDates.length > 1 ? endDates : endDates[0],
         added: new Date(),
       }
